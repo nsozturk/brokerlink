@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.4.3
+- Chart indicators: MA 7/25/99, EMA 20, Bollinger Bands, VWAP, volume, RSI 14, MACD; up to five at once.
+
 ## 0.4.2
 - Depth tab: ten-level ladder, last-trades tape, and a cumulative depth chart (levels need a depth licence).
 

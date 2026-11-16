@@ -157,31 +157,55 @@ function renderDepth() {
 chrome.storage.local.get("depthView").then(o => { if (o.depthView) depthView = o.depthView; });
 
 // ---- charts (drawn from MobilG's chart feed; portfolio holdings only)
-let holdings = [], chartOpt = { range: "1A", type: "candle", ma: true, vol: true };
+let holdings = [], chartOpt = { range: "1A", type: "candle", ind: ["ma7", "ma25", "vol"] };
 // Period shown -> [label, bar size, bars shown, days to fetch]. Counted in bars, so a range still shows the
 // last session when the market is closed. YTD is cut by date instead.
 const RANGES = { "1S": ["1 saat", "1", 60, 3], "1G": ["1 gün", "5", 100, 5], "3G": ["3 gün", "15", 100, 8], "1H": ["1 hafta", "30", 85, 12],
   "2H": ["2 hafta", "60", 85, 22], "1A": ["1 ay", "240", 45, 50], "2A": ["2 ay", "240", 90, 95], "3A": ["3 ay", "1D", 65, 130],
   "6A": ["6 ay", "1D", 130, 230], "YTD": ["YTD", "1D", 260, 400], "1Y": ["1 yıl", "1D", 250, 420] };
 const TYPES = [["candle", "Mum"], ["line", "Çizgi"], ["area", "Alan"]];
+// Indicators: [key, label, colour]. Overlays draw on the price; vol / rsi / macd get their own strip.
+const INDS = [["ma7", "MA 7", "#e6c35c"], ["ma25", "MA 25", "#b07fe0"], ["ma99", "MA 99", "#5cc8e6"], ["ema20", "EMA 20", "#e68a5c"],
+  ["boll", "Bollinger", "#8fa3b8"], ["vwap", "VWAP", "#f5f4ef"], ["vol", "Hacim", ""], ["rsi", "RSI 14", "#e6c35c"], ["macd", "MACD", "#5cc8e6"]];
+const MAX_IND = 5, WARM = 100;      // at most five at once: more than that is unreadable in a 400 px popup
 const sma = (a, n) => a.map((_, i) => i < n - 1 ? null : a.slice(i - n + 1, i + 1).reduce((x, y) => x + y, 0) / n);
-function draw(cv, d) {
-  const dpr = window.devicePixelRatio || 1, W = cv.clientWidth, H = cv.clientHeight, g = cv.getContext("2d");
+const ema = (a, n) => { const k = 2 / (n + 1); let e = a[0]; return a.map((v, i) => (e = i ? v * k + e * (1 - k) : v)); };
+function indicators(d, on) {
+  const o = {}, c = d.c;
+  if (on("ma7")) o.ma7 = sma(c, 7);
+  if (on("ma25")) o.ma25 = sma(c, 25);
+  if (on("ma99")) o.ma99 = sma(c, 99);
+  if (on("ema20")) o.ema20 = ema(c, 20);
+  if (on("boll")) {
+    const m = sma(c, 20), sd = c.map((_, i) => i < 19 ? null : Math.sqrt(c.slice(i - 19, i + 1).reduce((a, v) => a + (v - m[i]) ** 2, 0) / 20));
+    o.bollUp = m.map((v, i) => v === null ? null : v + 2 * sd[i]); o.bollLo = m.map((v, i) => v === null ? null : v - 2 * sd[i]);
+  }
+  if (on("vwap")) { let pv = 0, vv = 0; o.vwap = c.map((v, i) => { pv += (d.h[i] + d.l[i] + v) / 3 * d.v[i]; vv += d.v[i]; return vv ? pv / vv : null; }); }
+  if (on("rsi")) {
+    let g = 0, l = 0; o.rsi = c.map((v, i) => {
+      if (!i) return null;
+      const ch = v - c[i - 1], up = Math.max(ch, 0), dn = Math.max(-ch, 0);
+      if (i <= 14) { g += up / 14; l += dn / 14; return i < 14 ? null : 100 - 100 / (1 + g / (l || 1e-9)); }
+      g = (g * 13 + up) / 14; l = (l * 13 + dn) / 14; return 100 - 100 / (1 + g / (l || 1e-9));
+    });
+  }
+  if (on("macd")) { const e12 = ema(c, 12), e26 = ema(c, 26); o.macd = e12.map((v, i) => v - e26[i]); o.signal = ema(o.macd, 9); }
+  return o;
+}
+function draw(cv, d, ind, on) {
+  const strips = ["vol", "rsi", "macd"].filter(on), SH = { vol: 26, rsi: 40, macd: 40 };
+  const H = 140 + strips.reduce((a, k) => a + SH[k] + 4, 0);
+  cv.style.height = H + "px";
+  const dpr = window.devicePixelRatio || 1, W = cv.clientWidth, g = cv.getContext("2d");
   cv.width = W * dpr; cv.height = H * dpr; g.scale(dpr, dpr);
-  const n = d.c.length, pad = 52, volH = chartOpt.vol && d.v ? 26 : 0, ph = H - volH - 12;
-  const hi = Math.max(...d.h), lo = Math.min(...d.l), w = (W - pad) / n;
-  const y = v => 6 + (hi - v) / ((hi - lo) || 1) * ph, x = i => i * w + w / 2;
-  g.font = "10px -apple-system, sans-serif"; g.lineWidth = 1;
+  const n = d.c.length, pad = 52, ph = 128, w = (W - pad) / n, x = i => i * w + w / 2;
+  const hi = Math.max(...d.h, ...(ind.bollUp || []).filter(v => v !== null)), lo = Math.min(...d.l, ...(ind.bollLo || []).filter(v => v !== null));
+  const y = v => 6 + (hi - v) / ((hi - lo) || 1) * ph;
+  const line = (arr, col, yf, width = 1) => { g.beginPath(); let st = false; arr.forEach((v, i) => { if (v === null || v === undefined) return; st ? g.lineTo(x(i), yf(v)) : g.moveTo(x(i), yf(v)); st = true; }); g.strokeStyle = col; g.lineWidth = width; g.stroke(); g.lineWidth = 1; };
+  g.font = "10px -apple-system, sans-serif";
   for (const v of [hi, (hi + lo) / 2, lo]) {
     g.strokeStyle = "#3a3836"; g.beginPath(); g.moveTo(0, y(v)); g.lineTo(W - pad, y(v)); g.stroke();
     g.fillStyle = "#a8a49b"; g.fillText(tl(v), W - pad + 4, y(v) + 3);
-  }
-  if (volH) {
-    const vm = Math.max(...d.v, 1);
-    for (let i = 0; i < n; i++) {
-      g.fillStyle = d.c[i] >= d.o[i] ? "rgba(90,164,105,.45)" : "rgba(196,85,60,.45)";
-      const bh = d.v[i] / vm * (volH - 2); g.fillRect(x(i) - Math.max(1, w * 0.35), H - bh, Math.max(2, w * 0.7), bh);
-    }
   }
   if (chartOpt.type === "candle") {
     for (let i = 0; i < n; i++) {
@@ -194,43 +218,70 @@ function draw(cv, d) {
     g.strokeStyle = "#d97757"; g.lineWidth = 1.6; g.stroke(); g.lineWidth = 1;
     if (chartOpt.type === "area") { g.lineTo(x(n - 1), 6 + ph); g.lineTo(x(0), 6 + ph); g.closePath(); g.fillStyle = "rgba(217,119,87,.18)"; g.fill(); }
   }
-  if (chartOpt.ma) for (const [len, col] of [[7, "#e6c35c"], [25, "#b07fe0"]]) {
-    g.beginPath(); let started = false;
-    sma(d.c, len).forEach((v, i) => { if (v === null) return; started ? g.lineTo(x(i), y(v)) : g.moveTo(x(i), y(v)); started = true; });
-    g.strokeStyle = col; g.stroke();
+  const col = k => INDS.find(i => i[0] === k)[2];
+  for (const k of ["ma7", "ma25", "ma99", "ema20", "vwap"]) if (ind[k]) line(ind[k], col(k), y);
+  if (ind.bollUp) { line(ind.bollUp, col("boll"), y); line(ind.bollLo, col("boll"), y); }
+  let top = 6 + ph + 8;
+  for (const k of strips) {
+    const h = SH[k], base = top + h;
+    g.strokeStyle = "#3a3836"; g.beginPath(); g.moveTo(0, top - 2); g.lineTo(W - pad, top - 2); g.stroke();
+    g.fillStyle = "#a8a49b"; g.fillText(k === "vol" ? "Hacim" : k === "rsi" ? "RSI" : "MACD", W - pad + 4, top + 9);
+    if (k === "vol") {
+      const vm = Math.max(...d.v, 1);
+      for (let i = 0; i < n; i++) { g.fillStyle = d.c[i] >= d.o[i] ? "rgba(90,164,105,.5)" : "rgba(196,85,60,.5)"; const bh = d.v[i] / vm * h; g.fillRect(x(i) - Math.max(1, w * 0.35), base - bh, Math.max(2, w * 0.7), bh); }
+    } else if (k === "rsi") {
+      const yr = v => top + (100 - v) / 100 * h;
+      for (const lv of [70, 30]) { g.strokeStyle = "#55524d"; g.setLineDash([3, 3]); g.beginPath(); g.moveTo(0, yr(lv)); g.lineTo(W - pad, yr(lv)); g.stroke(); g.setLineDash([]); }
+      line(ind.rsi, col("rsi"), yr);
+      const last = ind.rsi[n - 1]; if (last !== null) g.fillText(last.toFixed(0), W - pad + 4, top + 21);
+    } else {
+      const hist = ind.macd.map((v, i) => v - ind.signal[i]), m = Math.max(...ind.macd.map(Math.abs), ...ind.signal.map(Math.abs), ...hist.map(Math.abs), 1e-9);
+      const ym = v => top + h / 2 - v / m * (h / 2);
+      for (let i = 0; i < n; i++) { g.fillStyle = hist[i] >= 0 ? "rgba(90,164,105,.5)" : "rgba(196,85,60,.5)"; g.fillRect(x(i) - Math.max(1, w * 0.35), Math.min(ym(0), ym(hist[i])), Math.max(2, w * 0.7), Math.abs(ym(hist[i]) - ym(0))); }
+      line(ind.macd, col("macd"), ym); line(ind.signal, "#e68a5c", ym);
+    }
+    top = base + 4;
   }
 }
-function chip(label, on, click) {
+function chip(label, on, click, color) {
   const b = Object.assign(document.createElement("button"), { className: "chip" + (on ? " on" : ""), textContent: label });
-  b.onclick = async () => { click(); await chrome.storage.local.set({ chartOpt }); renderCharts(); };
+  if (on && color) b.style.cssText = `background:#2a2927;color:${color};box-shadow:inset 0 0 0 1.5px ${color}`;
+  b.onclick = async () => { if (click() === false) return; await chrome.storage.local.set({ chartOpt }); renderCharts(); };
   return b;
 }
 async function renderCharts() {
-  const bar = $("chart-bar"); bar.innerHTML = "";
   if (!RANGES[chartOpt.range]) chartOpt.range = "1A";
+  if (!Array.isArray(chartOpt.ind)) chartOpt.ind = ["ma7", "ma25", "vol"];
+  const on = k => chartOpt.ind.includes(k), bar = $("chart-bar"); bar.innerHTML = "";
   for (const [k, [label]] of Object.entries(RANGES)) bar.append(chip(label, chartOpt.range === k, () => { chartOpt.range = k; }));
   bar.append(document.createElement("br"));
   for (const [v, label] of TYPES) bar.append(chip(label, chartOpt.type === v, () => { chartOpt.type = v; }));
-  bar.append(chip("MA 7/25", chartOpt.ma, () => { chartOpt.ma = !chartOpt.ma; }), chip("Hacim", chartOpt.vol, () => { chartOpt.vol = !chartOpt.vol; }));
+  bar.append(document.createElement("br"));
+  for (const [k, label, color] of INDS) bar.append(chip(label, on(k), () => {
+    if (on(k)) chartOpt.ind = chartOpt.ind.filter(i => i !== k);
+    else if (chartOpt.ind.length >= MAX_IND) { $("ind-note").textContent = `Aynı anda en çok ${MAX_IND} gösterge açılabilir; önce birini kapat.`; return false; }
+    else chartOpt.ind.push(k);
+  }, color || "#a8a49b"));
+  $("ind-note").textContent = `Göstergeler: ${chartOpt.ind.length} / ${MAX_IND} açık.`;
   const box = $("charts");
   if (!holdings.length) { box.innerHTML = "<small>Pozisyon yok.</small>"; return; }
   box.innerHTML = "";
   const [, resolution, bars, days] = RANGES[chartOpt.range];
   for (const h of holdings) {
     const el = document.createElement("div"); el.className = "card";
-    const sym = esc(String(h.symbolWithGroup || h.imkb).replace(/\(.*\)/, ""));
-    el.innerHTML = `<div class="row"><b style="color:var(--fg)">${sym}</b><span class="chg"></span></div><canvas></canvas>`;
+    el.innerHTML = `<div class="row"><b style="color:var(--fg)">${name(h)}</b><span class="chg"></span></div><canvas></canvas>`;
     box.append(el);
-    send({ type: "chart", symbol: h.foreksCode, resolution, days, bars: bars + 25 }).then(r => {
+    send({ type: "chart", symbol: h.foreksCode, resolution, days: days * 2, bars: bars + WARM }).then(r => {
       if (!r || r.error) { el.querySelector("canvas").replaceWith(Object.assign(document.createElement("small"), { textContent: (r && r.error) || "Grafik verisi yok." })); return; }
       const num = a => (a || []).map(Number), all = { o: num(r.data.o), h: num(r.data.h), l: num(r.data.l), c: num(r.data.c), v: num(r.data.v) };
       let keep = bars;
       if (chartOpt.range === "YTD") { const jan1 = new Date(new Date().getFullYear(), 0, 1) / 1000; keep = Math.max(2, num(r.data.t).filter(t => t >= jan1).length); }
-      // ponytail: the moving averages are computed on the visible bars only, so their first 6 / 24 points are missing.
-      const d = Object.fromEntries(Object.entries(all).map(([k, a]) => [k, a.slice(-keep)]));
+      // Indicators are computed on every fetched bar (WARM extra ones) and only then cut to the visible range.
+      const cut = o => Object.fromEntries(Object.entries(o).map(([k, a]) => [k, a.slice(-keep)]));
+      const d = cut(all), ind = cut(indicators(all, on));
       const chg = (d.c[d.c.length - 1] / d.o[0] - 1) * 100;
       el.querySelector(".chg").innerHTML = `${tl(d.c[d.c.length - 1])} <span class="${cls(chg)}">${chg >= 0 ? "+" : ""}${chg.toFixed(2)}%</span>`;
-      draw(el.querySelector("canvas"), d);
+      draw(el.querySelector("canvas"), d, ind, on);
     });
   }
 }

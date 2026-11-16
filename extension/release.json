@@ -1,7 +1,11 @@
 {
-  "version": "0.4.2",
+  "version": "0.4.3",
   "min_supported": "0.2.2",
   "notes": {
+    "0.4.3": [
+      "Göstergeler: MA 7, MA 25, MA 99, EMA 20, Bollinger, VWAP, Hacim, RSI 14, MACD",
+      "Aynı anda en çok 5 gösterge açılabilir"
+    ],
     "0.4.2": [
       "Derinlik sekmesi: 10 kademeli alış/satış tablosu ve son işlemler listesi",
       "Derinlik grafiği: kümülatif alış/satış eğrisi (derinlik lisansı gerekir)"

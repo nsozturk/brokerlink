@@ -29,7 +29,7 @@ const S = %s, REL = %s, TAB = new URLSearchParams(location.search).get('tab') ||
 const AUTO = new URLSearchParams(location.search).get('auto') === '1';
 Date.now = () => %d;
 const DV = new URLSearchParams(location.search).get('dv');
-const local = {depthView: DV || 'ladder', tab: TAB, history: S.history, seenVersion: '0'}, session = {pending: TAB === 'orders' && !AUTO ? S.pending : [], autoUntil: AUTO ? Date.now() + 3 * 3600e3 : 0};
+const local = {chartOpt: {range: '1A', type: 'candle', ind: ['ma7','ma25','boll','rsi','macd']}, depthView: DV || 'ladder', tab: TAB, history: S.history, seenVersion: '0'}, session = {pending: TAB === 'orders' && !AUTO ? S.pending : [], autoUntil: AUTO ? Date.now() + 3 * 3600e3 : 0};
 const store = o => ({get: async k => o, set: async v => Object.assign(o, v)});
 window.chrome = {storage: {local: store(local), session: store(session)},
   permissions: {contains: async () => true, request: async () => true},
