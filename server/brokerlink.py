@@ -100,6 +100,7 @@ def remote_release():
 
 # ---------------------------------------------------------------- job queue
 jobs, results, lock, ready = {}, {}, threading.Lock(), threading.Condition()
+order_results = {}     # order outcomes stay readable (order_result can be asked more than once)
 
 
 def denied(path):
@@ -233,8 +234,11 @@ class Handler(BaseHTTPRequestHandler):
         m = re.fullmatch(r"/jobs/([0-9a-f]{32})", self.path)
         if m:
             with lock:
-                r = results.pop(m.group(1), None)
-            return self._send(200, r) if r else self._send(202, {"state": "pending"})
+                r = results.pop(m.group(1), None) or order_results.get(m.group(1))
+                known = m.group(1) in jobs
+            if r:
+                return self._send(200, r)
+            return self._send(202, {"state": "pending"}) if known else self._send(404, {"error": "unknown id"})
         self._send(404)
 
     def do_POST(self):
@@ -274,6 +278,8 @@ class Handler(BaseHTTPRequestHandler):
                                     res.get("status"), res.get("body") or "")
                 with lock:
                     results[m.group(1)] = res
+                    if job.get("kind") == "order":
+                        order_results[m.group(1)] = res
             return self._send(200, {"ok": True})
         self._send(404)
 
@@ -324,10 +330,60 @@ def call(req, wait=WAIT_S):
                     break
             return res
     if req.get("kind") == "order":
-        return {"state": "awaiting_user_approval", "id": job["id"], "preview": job.get("preview"),
+        return {"outcome": "awaiting_user_approval", "sent": False, "id": job["id"], "preview": job.get("preview"),
                 "next": f"The user must click Onayla in {POPUP}. Check later with order_result.",
                 "auto_send": "off or not applicable to this order (market order or above the user's limits). " + HELP["auto_send"]}
     return {"error": "timed out: is the daemon running, the extension loaded and a logged-in MobilG tab open?"}
+
+
+def outcome(res, job_id=None):
+    """One plain answer for the LLM that asked: was the order approved, and did it reach the broker?"""
+    body, status = res.get("body"), res.get("status")
+    for _ in range(2):
+        if isinstance(body, str):
+            try:
+                body = json.loads(body)
+            except Exception:
+                break
+    b = body if isinstance(body, dict) else {}
+    data = b.get("data") if isinstance(b.get("data"), dict) else {}
+    out = {"id": job_id, "sent": False, "broker_message": data.get("errorMessage") or b.get("error") or b.get("title")}
+    if status == 499:
+        out.update(outcome="rejected_by_user", approved=False, next="The user rejected it in the popup. Do not resend unless asked.")
+    elif status == 403:
+        out.update(outcome="orders_switched_off", next=HELP["orders_switch"])
+    elif status in (409, 426):
+        out.update(outcome="not_sent", next="No logged-in MobilG tab." if status == 409 else "Extension update required (popup -> Güncelle).")
+    elif status == 200 and b.get("success") is not False and not data.get("errorCode"):
+        out.update(outcome="sent_to_broker", sent=True, approved=True, broker_order_id=data.get("hsr"),
+                   next="Accepted by the broker, not necessarily filled. Follow it with read('order_tracking').")
+    else:
+        out.update(outcome="refused_by_broker", approved=True, http_status=status,
+                   next="It was approved/sent but MobilG refused it; report broker_message to the user. Do not retry on your own.")
+    return out
+
+
+def order_status(job_id, wait):
+    end = time.time() + max(0, min(wait, 110))
+    while True:
+        try:
+            with urllib.request.urlopen(f"http://{HOST}:{PORT}/jobs/{job_id}", timeout=10) as r:
+                if r.status == 200:
+                    return outcome(json.loads(r.read()), job_id)
+        except urllib.error.HTTPError as e:
+            if e.code == 404:
+                return {"id": job_id, "outcome": "unknown_id", "sent": False}
+        if time.time() >= end:
+            return {"id": job_id, "outcome": "awaiting_user_approval", "sent": False,
+                    "next": f"Still waiting for the user's click in {POPUP}. Ask again with order_result."}
+        time.sleep(1)
+
+
+def queue_order(order, wait):
+    r = call({"kind": "order", "order": order}, wait=0)
+    if r.get("error"):
+        return {"outcome": "not_queued", "sent": False, "error": r["error"]}
+    return {**order_status(r["id"], wait), "preview": r.get("preview")}
 
 
 def mcp():
@@ -363,31 +419,31 @@ def mcp():
 
     @app.tool()
     def place_order(symbolId: str, stock: str, side: str, quantity: int, price: float,
-                    type: str = "limit", tif: str = "day") -> dict:
-        """Queue an equity order for HUMAN approval (if the user switched auto-send on in the popup, limit
-        orders within their limits are sent at once and the reply is MobilG's answer). Orders can be switched off.
-        Capped by max_order_try / max_daily_try. Nothing is sent until the user clicks Approve in the
-        brokerlink popup. side buy|sell, type limit|market, tif day|ioc, stock like 'NTGAZ.E'."""
-        return call({"kind": "order", "order": dict(symbolId=symbolId, stock=stock, side=side,
-                     quantity=quantity, price=price, type=type, tif=tif)}, wait=20)
+                    type: str = "limit", tif: str = "day", wait_seconds: int = 50) -> dict:
+        """Queue an equity order and wait up to wait_seconds for what happened. side buy|sell, type limit|market,
+        tif day|ioc, stock like 'NTGAZ.E'. The reply's `outcome` is one of: sent_to_broker (approved by the user or
+        auto-sent; `broker_order_id`, `broker_message`), rejected_by_user, refused_by_broker, awaiting_user_approval
+        (the user has not clicked yet: call order_result(id) later), orders_switched_off, not_sent, not_queued.
+        `sent` is true only when the broker accepted it. Always tell the user the outcome."""
+        return queue_order(dict(symbolId=symbolId, stock=stock, side=side, quantity=quantity, price=price,
+                                type=type, tif=tif), wait_seconds)
 
     @app.tool()
-    def cancel_order(orderId: str) -> dict:
-        """Queue a cancel of a working equity order (orderId from read('order_tracking')) for HUMAN
-        approval in the brokerlink popup."""
-        return call({"kind": "order", "order": {"action": "cancel", "orderId": orderId}}, wait=20)
+    def cancel_order(orderId: str, wait_seconds: int = 50) -> dict:
+        """Queue a cancel of a working equity order (orderId from read('order_tracking')). Same outcomes as place_order."""
+        return queue_order({"action": "cancel", "orderId": orderId}, wait_seconds)
 
     @app.tool()
-    def amend_order(orderId: str, oldPrice: float, oldAmount: int, newPrice: float, newAmount: int) -> dict:
-        """Queue a price/quantity change of a working equity order for HUMAN approval in the popup."""
-        return call({"kind": "order", "order": {"action": "amend", "orderId": orderId, "oldPrice": oldPrice,
-                     "oldAmount": oldAmount, "newPrice": newPrice, "newAmount": newAmount}}, wait=20)
+    def amend_order(orderId: str, oldPrice: float, oldAmount: int, newPrice: float, newAmount: int,
+                    wait_seconds: int = 50) -> dict:
+        """Queue a price/quantity change of a working equity order. Same outcomes as place_order."""
+        return queue_order({"action": "amend", "orderId": orderId, "oldPrice": oldPrice, "oldAmount": oldAmount,
+                            "newPrice": newPrice, "newAmount": newAmount}, wait_seconds)
 
     @app.tool()
-    def order_result(id: str) -> dict:
-        """Result of an order queued with place_order (after the user approved or rejected it)."""
-        with urllib.request.urlopen(f"http://{HOST}:{PORT}/jobs/{id}", timeout=10) as r:
-            return json.loads(r.read() or b"null")
+    def order_result(id: str, wait_seconds: int = 50) -> dict:
+        """Outcome of a queued order: waits up to wait_seconds for the user's click. Can be asked repeatedly."""
+        return order_status(id, wait_seconds)
 
     app.run()
 

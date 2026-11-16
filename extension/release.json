@@ -1,7 +1,11 @@
 {
-  "version": "0.3.0",
+  "version": "0.3.1",
   "min_supported": "0.2.2",
   "notes": {
+    "0.3.1": [
+      "Emri veren yapay zeka artık sonucu öğrenir: onaylandı mı, reddedildi mi, aracı kuruma gitti mi",
+      "Ajanlar ayarların (emir anahtarı, onaysız gönderim) nerede olduğunu MCP cevabından görür"
+    ],
     "0.3.0": [
       "Yeni pencere: Portföy / Emirler / Geçmiş / Yenilikler sekmeleri",
       "Emir geçmişi: gönderilen, düzeltilen, iptal edilen ve reddedilen emirler",

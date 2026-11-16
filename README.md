@@ -73,9 +73,18 @@ Order tools are experimental: the request shapes come from real MobilG traffic, 
 1. **Check the switch.** Open the extension popup; in the **Emirler** tab "Emirler açık" must be ticked.
 2. **Find the instrument.** `read("stock_list", {"type": "dashboard", "shortSell": "0"})` → take `sid` (the numeric `symbolId`) and the code with its suffix, e.g. `GARAN.E`.
 3. **Look at the price.** `read("price_info", {"symbolId": "<sid>", "symbol": "GARAN", "market": "Hisse", "buyCell": "A", "detail": "1"})` gives bid, ask, floor and ceiling; `read("depth", {"symbolId": "<sid>"})` gives the order book.
-4. **Queue the order.** `place_order(symbolId="<sid>", stock="GARAN.E", side="buy", quantity=1, price=134.20)`. Optional: `type` = `limit` (default) or `market`, `tif` = `day` (default) or `ioc`. The reply is `{"state": "awaiting_user_approval", "id": "…", "preview": "BUY GARAN.E 1 @ 134.2 TRY …"}`. Nothing has been sent yet.
+4. **Queue the order.** `place_order(symbolId="<sid>", stock="GARAN.E", side="buy", quantity=1, price=134.20)`. Optional: `type` = `limit` (default) or `market`, `tif` = `day` (default) or `ioc`. The call waits (50 s by default) for what happens next.
 5. **Approve in the browser.** A notification appears; open the popup, read the preview and click **Onayla** (approve) or **Reddet** (reject) in the **Emirler** tab.
-6. **Read the result.** `order_result(id)` returns MobilG's answer, e.g. `"Talebiniz İletilmiştir"` with the order number, or `rejected_by_user`.
+6. **The AI gets the outcome.** The reply tells the model exactly what happened:
+
+   | `outcome` | Meaning |
+   |---|---|
+   | `sent_to_broker` | Approved (or auto-sent) and accepted by MobilG; includes `broker_order_id` and `broker_message` |
+   | `rejected_by_user` | You clicked Reddet |
+   | `refused_by_broker` | Sent, but MobilG refused it; `broker_message` says why |
+   | `awaiting_user_approval` | You have not clicked yet; the model asks again with `order_result(id)` |
+   | `orders_switched_off`, `not_sent`, `not_queued` | Switch off, no MobilG tab or update needed, or refused by the limits |
+
 7. **Follow it.** `read("order_tracking")` lists today's orders with their ids and status.
 
 To change or cancel a working order, take its id from `order_tracking`:

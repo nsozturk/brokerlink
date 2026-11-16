@@ -26,6 +26,12 @@ def test_guards():
     assert b.build_job({"kind": "order", "order": {"action": "cancel", "orderId": "abc"}})[1]
     assert b.scrub({"otpToken": "s", "a": [{"clientId": "c", "x": 1}]}) == {"otpToken": "<redacted>", "a": [{"clientId": "<redacted>", "x": 1}]}
 
+    ok = {"status": 200, "body": '{"data":{"hsr":"42","errorCode":0,"errorMessage":"Talebiniz İletilmiştir"},"success":true}'}
+    assert b.outcome(ok)["outcome"] == "sent_to_broker" and b.outcome(ok)["sent"] and b.outcome(ok)["broker_order_id"] == "42"
+    assert b.outcome({"status": 499, "body": "{}"})["outcome"] == "rejected_by_user"
+    bad = {"status": 200, "body": '{"data":{"errorCode":7,"errorMessage":"Yetersiz bakiye"},"success":false}'}
+    assert b.outcome(bad)["outcome"] == "refused_by_broker" and not b.outcome(bad)["sent"]
+
 
 if __name__ == "__main__":
     test_guards()

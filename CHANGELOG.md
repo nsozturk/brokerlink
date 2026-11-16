@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.1
+- Order tools wait for the user's decision and return a clear `outcome` to the calling model; `order_result` can be asked repeatedly.
+- MCP replies say where the order switches live.
+
 ## 0.3.0
 - Popup redesigned with a segmented control: portfolio, orders, history, release notes.
 - Order history and result notifications.
