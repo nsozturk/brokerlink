@@ -36,7 +36,7 @@ window.chrome = {storage: {local: store(local), session: store(session)},
   runtime: {getURL: p => p, getManifest: () => ({version: REL.version}),
     sendMessage: async m => m.type === 'chart' ? {data: candles(m.symbol, m.bars)} : m.type === 'portfolio' ? {data: S.portfolio} : m.type === 'update' ? {forced: false, available: false, notes: REL.notes, checkedAt: Date.now()} : {ok: true}}};
 function candles(seed, n) { let x = [...String(seed)].reduce((a, c) => a + c.charCodeAt(0), 0), p = ({H1: 124, H2: 318, H3: 322, H4: 196})[seed] || 100; const r = () => (x = (x * 9301 + 49297) %% 233280) / 233280;
-  const d = {s: 'ok', t: [], o: [], h: [], l: [], c: []}; for (let i = 0; i < n; i++) { const o = p, c = p * (1 + (r() - .47) * .03); d.t.push(i); d.o.push(o); d.c.push(c); d.h.push(Math.max(o, c) * (1 + r() * .008)); d.l.push(Math.min(o, c) * (1 - r() * .008)); p = c; } return d; }
+  const d = {s: 'ok', t: [], o: [], h: [], l: [], c: [], v: []}; for (let i = 0; i < n; i++) { const o = p, c = p * (1 + (r() - .47) * .03); d.t.push(i); d.v.push(2e5 + r() * 9e5); d.o.push(o); d.c.push(c); d.h.push(Math.max(o, c) * (1 + r() * .008)); d.l.push(Math.min(o, c) * (1 - r() * .008)); p = c; } return d; }
 window.fetch = async u => ({ok: true, json: async () => REL});
 """ % (json.dumps(SAMPLE, ensure_ascii=False), json.dumps(RELEASE, ensure_ascii=False), NOW)
 

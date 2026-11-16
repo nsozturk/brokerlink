@@ -1,7 +1,12 @@
 {
-  "version": "0.4.0",
+  "version": "0.4.1",
   "min_supported": "0.2.2",
   "notes": {
+    "0.4.1": [
+      "Grafik dönemleri: 1 saat, 1 gün, 3 gün, 1 hafta, 2 hafta, 1 ay, 2 ay, 3 ay, 6 ay, YTD, 1 yıl",
+      "Grafik türü: Mum, Çizgi, Alan",
+      "Hareketli ortalamalar (MA 7 ve 25) ve hacim çubukları"
+    ],
     "0.4.0": [
       "Yeni sekmeler: Derinlik ve Grafik (yalnız portföyündeki hisseler)",
       "Grafikler: 1 gün / 1 ay / 6 ay mum grafikleri",

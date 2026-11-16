@@ -6,5 +6,5 @@ authors:
   - name: brokerlink contributors
 repository-code: "https://github.com/nsozturk/brokerlink"
 license: MIT
-version: 0.4.0
+version: 0.4.1
 abstract: "brokerlink is a free, open-source Chrome extension and local MCP server that lets Claude, Codex, Gemini and other AI tools read your own PhillipCapital MobilG brokerage account through your logged-in browser tab."

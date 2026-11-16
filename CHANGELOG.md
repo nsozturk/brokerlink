@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.4.1
+- Charts: eleven periods (1 hour to 1 year, YTD), candle / line / area, MA 7 and 25, volume bars.
+
 ## 0.4.0
 - New popup tabs: depth (bid/ask cards) and charts (candles from MobilG's chart feed) for portfolio holdings.
 - Fix: bid/ask and band values were empty because of a double-encoded response.

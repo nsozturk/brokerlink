@@ -112,43 +112,85 @@ async function renderPortfolio() {
   $("asof").textContent = new Date().toLocaleTimeString("tr-TR");
 }
 
-// ---- charts (candles drawn from MobilG's chart feed; portfolio holdings only)
-let holdings = [], range = "1A";
-const RANGES = { "1G": { resolution: "15", days: 4, bars: 34 }, "1A": { resolution: "60", days: 40, bars: 90 }, "6A": { resolution: "1D", days: 200, bars: 120 } };
+// ---- charts (drawn from MobilG's chart feed; portfolio holdings only)
+let holdings = [], chartOpt = { range: "1A", type: "candle", ma: true, vol: true };
+// Period shown -> [label, bar size, bars shown, days to fetch]. Counted in bars, so a range still shows the
+// last session when the market is closed. YTD is cut by date instead.
+const RANGES = { "1S": ["1 saat", "1", 60, 3], "1G": ["1 gün", "5", 100, 5], "3G": ["3 gün", "15", 100, 8], "1H": ["1 hafta", "30", 85, 12],
+  "2H": ["2 hafta", "60", 85, 22], "1A": ["1 ay", "240", 45, 50], "2A": ["2 ay", "240", 90, 95], "3A": ["3 ay", "1D", 65, 130],
+  "6A": ["6 ay", "1D", 130, 230], "YTD": ["YTD", "1D", 260, 400], "1Y": ["1 yıl", "1D", 250, 420] };
+const TYPES = [["candle", "Mum"], ["line", "Çizgi"], ["area", "Alan"]];
+const sma = (a, n) => a.map((_, i) => i < n - 1 ? null : a.slice(i - n + 1, i + 1).reduce((x, y) => x + y, 0) / n);
 function draw(cv, d) {
   const dpr = window.devicePixelRatio || 1, W = cv.clientWidth, H = cv.clientHeight, g = cv.getContext("2d");
   cv.width = W * dpr; cv.height = H * dpr; g.scale(dpr, dpr);
-  const n = d.t.length, hi = Math.max(...d.h.map(Number)), lo = Math.min(...d.l.map(Number)), pad = 52;
-  const y = v => 6 + (hi - v) / ((hi - lo) || 1) * (H - 12), w = (W - pad) / n;
-  g.font = "10px -apple-system, sans-serif"; g.fillStyle = "#a8a49b"; g.strokeStyle = "#3a3836";
-  for (const v of [hi, (hi + lo) / 2, lo]) { g.beginPath(); g.moveTo(0, y(v)); g.lineTo(W - pad, y(v)); g.stroke(); g.fillText(tl(v), W - pad + 4, y(v) + 3); }
-  for (let i = 0; i < n; i++) {
-    const o = +d.o[i], c = +d.c[i], x = i * w + w / 2;
-    g.strokeStyle = g.fillStyle = c >= o ? "#5aa469" : "#c4553c";
-    g.beginPath(); g.moveTo(x, y(+d.h[i])); g.lineTo(x, y(+d.l[i])); g.stroke();
-    g.fillRect(x - Math.max(1, w * 0.35), Math.min(y(o), y(c)), Math.max(2, w * 0.7), Math.max(1, Math.abs(y(o) - y(c))));
+  const n = d.c.length, pad = 52, volH = chartOpt.vol && d.v ? 26 : 0, ph = H - volH - 12;
+  const hi = Math.max(...d.h), lo = Math.min(...d.l), w = (W - pad) / n;
+  const y = v => 6 + (hi - v) / ((hi - lo) || 1) * ph, x = i => i * w + w / 2;
+  g.font = "10px -apple-system, sans-serif"; g.lineWidth = 1;
+  for (const v of [hi, (hi + lo) / 2, lo]) {
+    g.strokeStyle = "#3a3836"; g.beginPath(); g.moveTo(0, y(v)); g.lineTo(W - pad, y(v)); g.stroke();
+    g.fillStyle = "#a8a49b"; g.fillText(tl(v), W - pad + 4, y(v) + 3);
+  }
+  if (volH) {
+    const vm = Math.max(...d.v, 1);
+    for (let i = 0; i < n; i++) {
+      g.fillStyle = d.c[i] >= d.o[i] ? "rgba(90,164,105,.45)" : "rgba(196,85,60,.45)";
+      const bh = d.v[i] / vm * (volH - 2); g.fillRect(x(i) - Math.max(1, w * 0.35), H - bh, Math.max(2, w * 0.7), bh);
+    }
+  }
+  if (chartOpt.type === "candle") {
+    for (let i = 0; i < n; i++) {
+      g.strokeStyle = g.fillStyle = d.c[i] >= d.o[i] ? "#5aa469" : "#c4553c";
+      g.beginPath(); g.moveTo(x(i), y(d.h[i])); g.lineTo(x(i), y(d.l[i])); g.stroke();
+      g.fillRect(x(i) - Math.max(1, w * 0.35), Math.min(y(d.o[i]), y(d.c[i])), Math.max(2, w * 0.7), Math.max(1, Math.abs(y(d.o[i]) - y(d.c[i]))));
+    }
+  } else {
+    g.beginPath(); d.c.forEach((v, i) => i ? g.lineTo(x(i), y(v)) : g.moveTo(x(i), y(v)));
+    g.strokeStyle = "#d97757"; g.lineWidth = 1.6; g.stroke(); g.lineWidth = 1;
+    if (chartOpt.type === "area") { g.lineTo(x(n - 1), 6 + ph); g.lineTo(x(0), 6 + ph); g.closePath(); g.fillStyle = "rgba(217,119,87,.18)"; g.fill(); }
+  }
+  if (chartOpt.ma) for (const [len, col] of [[7, "#e6c35c"], [25, "#b07fe0"]]) {
+    g.beginPath(); let started = false;
+    sma(d.c, len).forEach((v, i) => { if (v === null) return; started ? g.lineTo(x(i), y(v)) : g.moveTo(x(i), y(v)); started = true; });
+    g.strokeStyle = col; g.stroke();
   }
 }
+function chip(label, on, click) {
+  const b = Object.assign(document.createElement("button"), { className: "chip" + (on ? " on" : ""), textContent: label });
+  b.onclick = async () => { click(); await chrome.storage.local.set({ chartOpt }); renderCharts(); };
+  return b;
+}
 async function renderCharts() {
-  document.querySelectorAll("#range button").forEach(b => b.classList.toggle("on", b.dataset.r === range));
+  const bar = $("chart-bar"); bar.innerHTML = "";
+  if (!RANGES[chartOpt.range]) chartOpt.range = "1A";
+  for (const [k, [label]] of Object.entries(RANGES)) bar.append(chip(label, chartOpt.range === k, () => { chartOpt.range = k; }));
+  bar.append(document.createElement("br"));
+  for (const [v, label] of TYPES) bar.append(chip(label, chartOpt.type === v, () => { chartOpt.type = v; }));
+  bar.append(chip("MA 7/25", chartOpt.ma, () => { chartOpt.ma = !chartOpt.ma; }), chip("Hacim", chartOpt.vol, () => { chartOpt.vol = !chartOpt.vol; }));
   const box = $("charts");
   if (!holdings.length) { box.innerHTML = "<small>Pozisyon yok.</small>"; return; }
   box.innerHTML = "";
-  for (const x of holdings) {
+  const [, resolution, bars, days] = RANGES[chartOpt.range];
+  for (const h of holdings) {
     const el = document.createElement("div"); el.className = "card";
-    const sym = esc(String(x.symbolWithGroup || x.imkb).replace(/\(.*\)/, ""));
+    const sym = esc(String(h.symbolWithGroup || h.imkb).replace(/\(.*\)/, ""));
     el.innerHTML = `<div class="row"><b style="color:var(--fg)">${sym}</b><span class="chg"></span></div><canvas></canvas>`;
     box.append(el);
-    send({ type: "chart", symbol: x.foreksCode, ...RANGES[range] }).then(r => {
+    send({ type: "chart", symbol: h.foreksCode, resolution, days, bars: bars + 25 }).then(r => {
       if (!r || r.error) { el.querySelector("canvas").replaceWith(Object.assign(document.createElement("small"), { textContent: (r && r.error) || "Grafik verisi yok." })); return; }
-      const d = r.data, k = RANGES[range].bars, cut = a => a.slice(-k), dd = { t: cut(d.t), o: cut(d.o), h: cut(d.h), l: cut(d.l), c: cut(d.c) };
-      const chg = (+dd.c[dd.c.length - 1] / +dd.o[0] - 1) * 100;
-      el.querySelector(".chg").innerHTML = `${tl(+dd.c[dd.c.length - 1])} <span class="${cls(chg)}">${chg >= 0 ? "+" : ""}${chg.toFixed(2)}%</span>`;
-      draw(el.querySelector("canvas"), dd);
+      const num = a => (a || []).map(Number), all = { o: num(r.data.o), h: num(r.data.h), l: num(r.data.l), c: num(r.data.c), v: num(r.data.v) };
+      let keep = bars;
+      if (chartOpt.range === "YTD") { const jan1 = new Date(new Date().getFullYear(), 0, 1) / 1000; keep = Math.max(2, num(r.data.t).filter(t => t >= jan1).length); }
+      // ponytail: the moving averages are computed on the visible bars only, so their first 6 / 24 points are missing.
+      const d = Object.fromEntries(Object.entries(all).map(([k, a]) => [k, a.slice(-keep)]));
+      const chg = (d.c[d.c.length - 1] / d.o[0] - 1) * 100;
+      el.querySelector(".chg").innerHTML = `${tl(d.c[d.c.length - 1])} <span class="${cls(chg)}">${chg >= 0 ? "+" : ""}${chg.toFixed(2)}%</span>`;
+      draw(el.querySelector("canvas"), d);
     });
   }
 }
-document.querySelectorAll("#range button").forEach(b => { b.onclick = () => { range = b.dataset.r; renderCharts(); }; });
+chrome.storage.local.get("chartOpt").then(o => { if (o.chartOpt) chartOpt = { ...chartOpt, ...o.chartOpt }; });
 
 // ---- order switches and limits
 const DEFAULTS = { maxOrder: 2500, maxDaily: 10000, autoHours: 4 };
