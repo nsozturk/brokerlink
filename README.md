@@ -23,13 +23,13 @@ brokerlink is a free, open-source Chrome extension and local MCP server that let
 
 Sample data, not a real account.
 
-| Portfolio | Orders | Send without approval | History |
-|---|---|---|---|
-| <img src="assets/screens/portfolio.png" width="210" alt="Portfolio tab: positions, cost, price, profit and loss"> | <img src="assets/screens/orders.png" width="210" alt="Orders tab: an order waiting for approval"> | <img src="assets/screens/auto-send.png" width="210" alt="Auto-send card with per-order limit, daily limit and duration"> | <img src="assets/screens/history.png" width="210" alt="History tab: sent, amended, cancelled and rejected orders"> |
+| Portfolio | Depth | Charts |
+|---|---|---|
+| <img src="assets/screens/portfolio.png" width="260" alt="Portfolio tab: positions, cost, price, day change, profit and loss"> | <img src="assets/screens/depth.png" width="260" alt="Depth tab: best bid and ask, spread, daily band and depth levels per position"> | <img src="assets/screens/charts.png" width="260" alt="Charts tab: candlestick charts for the positions"> |
 
-Below the totals the portfolio tab also shows a card per position: best bid and ask, spread, where the price sits in today's band and, when MobilG returns them, the depth levels:
-
-<img src="assets/screens/depth.png" width="260" alt="Per-position cards: bid, ask, spread, daily band and depth levels">
+| Orders | Send without approval | History |
+|---|---|---|
+| <img src="assets/screens/orders.png" width="260" alt="Orders tab: an order waiting for approval"> | <img src="assets/screens/auto-send.png" width="260" alt="Auto-send card with per-order limit, daily limit and duration"> | <img src="assets/screens/history.png" width="260" alt="History tab: sent, amended, cancelled and rejected orders"> |
 
 A part-by-part tour is in the [documentation](https://nsozturk.github.io/brokerlink/#tour).
 
@@ -60,13 +60,13 @@ AI client ──stdio MCP──▶ brokerlink.py mcp ──HTTP──▶ brokerl
 | Safe writes | follow lists and price alarms |
 | Orders | new, cancel, amend: queued for your click, see below |
 
-The extension popup has four tabs: portfolio (positions, cost, last price, profit/loss), orders (approvals and settings), order history and release notes.
+The extension popup has five tabs: portfolio (positions, cost, last price, day change, profit/loss), depth (best bid/ask, spread, daily band, depth levels with a depth licence), charts (candles for your positions), orders (approvals and settings) and order history. Release notes open from the version label.
 
 **Never included:** money-out and asset-transfer endpoints (EFT, transfers, FX conversion, collateral), login, password and settings, and the broker's AI-authorization switches. They are on a deny list.
 
 ## Orders
 
-The popup is in Turkish (the broker's market): *Portföy* = portfolio, *Emirler* = orders, *Geçmiş* = history, *Yenilikler* = what's new, *Onayla / Reddet* = approve / reject, *Emirler açık* = orders enabled, *Onaysız gönderim* = send without approval.
+The popup is in Turkish (the broker's market): *Portföy* = portfolio, *Derinlik* = depth, *Grafik* = charts, *Emirler* = orders, *Geçmiş* = history, *Onayla / Reddet* = approve / reject, *Emirler açık* = orders enabled, *Onaysız gönderim* = send without approval.
 
 On by default, with a switch in the extension popup ("Emirler açık") to turn them off. An order from an AI is only **queued**: nothing is sent until **you click Onayla (approve) in the popup**. The per-order and daily limits you set in the popup (defaults 2,500 TL and 10,000 TL) are checked first. An AI agent cannot approve and cannot flip the switches: they live in the browser.
 

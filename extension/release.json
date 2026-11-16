@@ -1,7 +1,13 @@
 {
-  "version": "0.3.5",
+  "version": "0.4.0",
   "min_supported": "0.2.2",
   "notes": {
+    "0.4.0": [
+      "Yeni sekmeler: Derinlik ve Grafik (yalnız portföyündeki hisseler)",
+      "Grafikler: 1 gün / 1 ay / 6 ay mum grafikleri",
+      "Düzeltme: alış/satış ve taban/tavan değerleri boş görünüyordu",
+      "Yenilikler artık sürüm numarasına tıklayınca açılır"
+    ],
     "0.3.5": [
       "Portföyde \"Gün\" sütunu: her hissenin bugünkü yüzde değişimi",
       "K/Z ve % sütunları tek renkli kutuda",

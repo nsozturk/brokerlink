@@ -22,13 +22,16 @@
   th { color: var(--muted); font-weight: 500; border-bottom: 1px solid var(--line); }
   tfoot td { border-top: 1px solid var(--line); font-weight: 600; }
   table { border-collapse: separate; border-spacing: 0; }
-  .pl { background: rgba(217, 119, 87, .13); } th.pl { color: var(--accent); }
-  .pl.l { padding-left: 8px; border-left: 4px solid var(--bg); } .pl.r { padding-right: 6px; }
-  thead .pl.l { border-top-left-radius: 8px; } thead .pl.r { border-top-right-radius: 8px; }
-  tfoot .pl.l { border-bottom-left-radius: 8px; } tfoot .pl.r { border-bottom-right-radius: 8px; }
+  table.pf { border-spacing: 0 3px; }
+  td.pl { border: 1.5px solid; border-left-width: 0; border-right-width: 0; }   /* colour set per row from the P/L % */
+  td.pl.l { border-left-width: 1.5px; border-radius: 8px 0 0 8px; padding-left: 8px; }
+  td.pl.r { border-right-width: 1.5px; border-radius: 0 8px 8px 0; padding-right: 6px; }
+  table.pf tfoot td { border-top: 0; } table.pf tfoot td.pl { border-top: 1.5px solid; }
   .band { position: relative; height: 4px; border-radius: 2px; margin: 6px 0 2px; background: linear-gradient(to right, var(--bad), #555, var(--ok)); }
   .band i { position: absolute; top: -4px; width: 4px; height: 12px; margin-left: -2px; border-radius: 2px; background: var(--fg); }
   .depth th, .depth td { font-size: 12px; text-align: center; }
+  nav button { font-size: 12px; } canvas { width: 100%; height: 150px; display: block; margin-top: 4px; }
+  #range button { padding: 3px 8px; } #range button.on { background: var(--accent); }
   .banner { padding: 10px 12px; background: var(--accent); color: #fff; } .banner.forced { background: var(--bad); }
   .banner button { background: #fff; color: #1f1e1d; margin-left: 8px; border: 0; border-radius: 6px; padding: 4px 8px; cursor: pointer; }
   ul { margin: 4px 0 8px; padding-left: 18px; color: var(--muted); } .new { color: var(--accent); }
@@ -37,16 +40,25 @@
   .h { border-bottom: 1px solid var(--line); padding: 6px 0; } .h small { display: block; }
   .pager { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; }
 </style>
-<header><img src="icons/48.png" alt=""><div><b>brokerlink</b> <small id="ver"></small><br><small>unofficial MobilG ↔ MCP bridge</small></div>
+<header><img src="icons/48.png" alt=""><div><b>brokerlink</b> <small id="ver" title="Yenilikler" style="cursor:pointer;text-decoration:underline dotted"></small><br><small>unofficial MobilG ↔ MCP bridge</small></div>
   <div class="st"><span id="daemon">…</span><br><span id="tab">…</span></div></header>
 <div id="update"></div>
 <div id="perm" class="banner" hidden>Eklentinin MobilG sekmesine ve yerel sunucuya erişmesi için izin gerekiyor. <button id="perm-btn">İzin ver</button></div>
 <nav id="nav">
-  <button data-t="portfolio">Portföy</button><button data-t="orders">Emirler</button>
-  <button data-t="history">Geçmiş</button><button data-t="news">Yenilikler</button>
+  <button data-t="portfolio">Portföy</button><button data-t="depth">Derinlik</button><button data-t="charts">Grafik</button>
+  <button data-t="orders">Emirler</button><button data-t="history">Geçmiş</button>
 </nav>
 <main>
   <div data-p="portfolio"><b>Portföy</b> <small id="asof"></small><div id="portfolio"><small>Yükleniyor…</small></div></div>
+
+  <div data-p="depth" hidden><b>Alış / satış ve derinlik</b> <small>(portföyündeki hisseler)</small><div id="depth"><small>Yükleniyor…</small></div></div>
+
+  <div data-p="charts" hidden>
+    <div class="row"><b style="color:var(--fg)">Grafikler</b>
+      <span id="range"><button class="act plain" data-r="1G">1G</button> <button class="act plain" data-r="1A">1A</button> <button class="act plain" data-r="6A">6A</button></span></div>
+    <div id="charts"><small>Yükleniyor…</small></div>
+    <small>Veri MobilG'nin kendi grafik akışından gelir (MobilG'deki TradingView grafiğinin kullandığı veri).</small>
+  </div>
 
   <div data-p="orders" hidden>
     <div class="row"><b style="color:var(--fg)">Onay bekleyen emirler</b>

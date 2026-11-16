@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.0
+- New popup tabs: depth (bid/ask cards) and charts (candles from MobilG's chart feed) for portfolio holdings.
+- Fix: bid/ask and band values were empty because of a double-encoded response.
+- Release notes moved behind the version label; the card says when the account has no depth licence.
+
 ## 0.3.5
 - Portfolio: day change column; P/L and % grouped in one tinted block.
 - Per-position cards: best bid/ask, spread, position in the daily band, depth levels when available.

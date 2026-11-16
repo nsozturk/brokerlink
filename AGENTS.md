@@ -36,7 +36,7 @@ Read `README.md` first. Hard rules for anyone extending this repo:
 |---|---|
 | Conditional orders | `StockOrder/SetSyntheticOrderAsync` (POST, auth in query), `DeleteSyntheticOrderAsync?id=`; body not captured yet — capture one from the UI first |
 | Chain orders | `OrderTransaction/chainOrderAsync`, body in `research/order-endpoints.md` |
-| Real-time stream | SignalR hub `hubmobilg.phillip.com.tr/signalr`: `getMessage` (prices), `getDepthMessage`, `getLastCompletedOrderMessage`, `getBalanceMessage`, `getPositionNotification`. Needs an in-page listener |
+| Real-time stream | ASP.NET Core SignalR hub (`<hub>/signalr`, WebSocket, MessagePack). The page subscribes with `connectUser2(…, selectedStock, …)`: one selected stock per connection. Pushes `getMessage` (prices), `getBalanceMessage`, `getPositionNotification`, `getLastCompletedOrderMessage`, and `getDepthMessage` only for accounts with a depth licence (`auth.userDepthLicence` > 0; verified: none arrive with 0). Not implemented: needs a MAIN-world WebSocket hook installed at page load, and must not re-subscribe on the page's connection |
 | Tests | daemon validation (deny list, caps, unknown names) is pure Python and easy to unit-test |
 
 ## Releasing

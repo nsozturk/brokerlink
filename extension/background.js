@@ -240,7 +240,9 @@ async function portfolio() {
   const pi = await resolve({ name: "price_info" }), dp = await resolve({ name: "depth" });
   const run = async (spec, params) => {
     const [q] = await chrome.scripting.executeScript({ target: { tabId: tab.id }, func: inTab, args: [{ ...spec, body: null, params }] });
-    return JSON.parse(q.result.body);
+    let d = q.result.body;                     // some MobilG endpoints return JSON encoded twice
+    for (let i = 0; i < 2 && typeof d === "string"; i++) d = JSON.parse(d);
+    return d;
   };
   await Promise.all((body.hubDataList || []).map(async h => {
     const row = (body.stockOrders.rows || []).find(r => r.imkb === h.imkb);
@@ -258,10 +260,27 @@ async function portfolio() {
       if (lv.length) row.depth = lv;
     } catch { /* no depth for this row */ }
   }));
+  // Depth levels need a market-data licence on the account (0 = none); the popup says so instead of guessing.
+  const [lic] = await chrome.scripting.executeScript({ target: { tabId: tab.id },
+    func: () => { try { return Number(JSON.parse(localStorage.getItem("auth")).userDepthLicence) || 0; } catch { return 0; } } });
+  body.depthLicence = lic.result;
   return { data: body };
 }
 
+// Candles for the popup's chart tab (MobilG's own chart feed, the one behind its TradingView chart).
+async function chart(msg) {
+  const tab = await mobilgTab();
+  if (!tab) return { error: "no_tab" };
+  const spec = await resolve({ name: "chart_history" }), now = Math.floor(Date.now() / 1000);
+  const [q] = await chrome.scripting.executeScript({ target: { tabId: tab.id }, func: inTab, args: [{ ...spec, body: null,
+    params: { symbol: msg.symbol, resolution: msg.resolution, from: String(now - msg.days * 86400), to: String(now), countback: String(msg.bars) } }] });
+  let d = q.result.body;
+  for (let i = 0; i < 2 && typeof d === "string"; i++) d = JSON.parse(d);
+  return d && d.s === "ok" ? { data: d } : { error: "Grafik verisi yok." };
+}
+
 chrome.runtime.onMessage.addListener((msg, _s, reply) => {
+  if (msg.type === "chart") chart(msg).then(reply, e => reply({ error: String(e.message || e) }));
   if (msg.type === "approve") approveOrder(msg.id, msg.approve).then(() => reply({ ok: true }));
   if (msg.type === "settings") pushSettings().then(() => reply({ ok: true }));
   if (msg.type === "update") checkUpdate().then(reply);

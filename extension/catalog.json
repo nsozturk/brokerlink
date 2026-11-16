@@ -69,7 +69,7 @@
     "fund_requests":         {"path": "InvestmentFund/getFundRequestListAsync", "params": [], "doc": "Your fund requests"},
     "fund_sale_list":        {"path": "InvestmentFund/getFundSaleListAsync", "params": [], "doc": "Fund sale list"},
     "server_time":           {"path": "User/GetServerTime", "params": [], "auth": false, "doc": "Server time"},
-    "chart_history":         {"path": "chart/history", "params": ["symbol", "resolution", "from", "to", "session", "menkultype", "description"], "auth": false, "doc": "OHLCV candles (TradingView UDF). resolution 1,5,15,60,1D...; from/to unix seconds"}
+    "chart_history":         {"path": "chart/history", "params": ["symbol", "resolution", "from", "to", "countback", "session", "menkultype", "description"], "auth": false, "doc": "OHLCV candles (TradingView UDF): symbol = foreksCode from portfolio or stock_list (fc), resolution 1, 5, 15, 60, 1D; from/to unix seconds; countback = number of bars. Returns arrays t,o,h,l,c,v"}
   },
   "writes": {
     "follow_add":        {"path": "FollowList/addAsync", "method": "POST", "body": ["userDashboardId", "stock", "order", "market"], "doc": "Add a symbol to a follow list"},
