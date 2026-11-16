@@ -21,6 +21,14 @@
   th, td { padding: 3px 2px; text-align: right; } th:first-child, td:first-child { text-align: left; }
   th { color: var(--muted); font-weight: 500; border-bottom: 1px solid var(--line); }
   tfoot td { border-top: 1px solid var(--line); font-weight: 600; }
+  table { border-collapse: separate; border-spacing: 0; }
+  .pl { background: rgba(217, 119, 87, .13); } th.pl { color: var(--accent); }
+  .pl.l { padding-left: 8px; border-left: 4px solid var(--bg); } .pl.r { padding-right: 6px; }
+  thead .pl.l { border-top-left-radius: 8px; } thead .pl.r { border-top-right-radius: 8px; }
+  tfoot .pl.l { border-bottom-left-radius: 8px; } tfoot .pl.r { border-bottom-right-radius: 8px; }
+  .band { position: relative; height: 4px; border-radius: 2px; margin: 6px 0 2px; background: linear-gradient(to right, var(--bad), #555, var(--ok)); }
+  .band i { position: absolute; top: -4px; width: 4px; height: 12px; margin-left: -2px; border-radius: 2px; background: var(--fg); }
+  .depth th, .depth td { font-size: 12px; text-align: center; }
   .banner { padding: 10px 12px; background: var(--accent); color: #fff; } .banner.forced { background: var(--bad); }
   .banner button { background: #fff; color: #1f1e1d; margin-left: 8px; border: 0; border-radius: 6px; padding: 4px 8px; cursor: pointer; }
   ul { margin: 4px 0 8px; padding-left: 18px; color: var(--muted); } .new { color: var(--accent); }

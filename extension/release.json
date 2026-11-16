@@ -1,7 +1,12 @@
 {
-  "version": "0.3.4",
+  "version": "0.3.5",
   "min_supported": "0.2.2",
   "notes": {
+    "0.3.5": [
+      "Portföyde \"Gün\" sütunu: her hissenin bugünkü yüzde değişimi",
+      "K/Z ve % sütunları tek renkli kutuda",
+      "Her hisse için kart: en iyi alış/satış, makas, taban-tavan aralığındaki yer ve (veri geldiğinde) derinlik kademeleri"
+    ],
     "0.3.4": [
       "Üstteki \"MobilG'ye giriş yap\" yazısı da tıklanınca MobilG'yi açar"
     ],

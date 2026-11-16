@@ -27,6 +27,10 @@ Sample data, not a real account.
 |---|---|---|---|
 | <img src="assets/screens/portfolio.png" width="210" alt="Portfolio tab: positions, cost, price, profit and loss"> | <img src="assets/screens/orders.png" width="210" alt="Orders tab: an order waiting for approval"> | <img src="assets/screens/auto-send.png" width="210" alt="Auto-send card with per-order limit, daily limit and duration"> | <img src="assets/screens/history.png" width="210" alt="History tab: sent, amended, cancelled and rejected orders"> |
 
+Below the totals the portfolio tab also shows a card per position: best bid and ask, spread, where the price sits in today's band and, when MobilG returns them, the depth levels:
+
+<img src="assets/screens/depth.png" width="260" alt="Per-position cards: bid, ask, spread, daily band and depth levels">
+
 A part-by-part tour is in the [documentation](https://nsozturk.github.io/brokerlink/#tour).
 
 ## How it works

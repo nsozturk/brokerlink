@@ -63,21 +63,45 @@ async function renderPortfolio() {
   }
   if (!r || r.error) { box.innerHTML = `<small>${esc((r && r.error) || "Cevap yok.")}</small>`; return; }
   const s = r.data.stockOrders || { rows: [] };
+  const name = x => esc(String(x.symbolWithGroup || x.imkb).replace(/\(.*\)/, ""));
+  const sign = n => (n >= 0 ? "+" : "") + n.toFixed(2) + "%";
   const rows = s.rows.map(x => {
     const pct = x.cost ? (x.price / x.cost - 1) * 100 : 0;
-    return `<tr><td>${esc(String(x.symbolWithGroup || x.imkb).replace(/\(.*\)/, ""))}</td><td>${x.quantity}</td>
-      <td>${tl(x.cost)}</td><td>${tl(x.price)}</td>
-      <td class="${cls(x.profitLoss)}">${tl(x.profitLoss)}</td><td class="${cls(pct)}">${pct.toFixed(1)}%</td></tr>`;
+    const day = x.dayPct === undefined ? "<td>–</td>" : `<td class="${cls(x.dayPct)}">${sign(x.dayPct)}</td>`;
+    return `<tr><td>${name(x)}</td><td>${x.quantity}</td><td>${tl(x.cost)}</td><td>${tl(x.price)}</td>${day}
+      <td class="pl l ${cls(x.profitLoss)}">${tl(x.profitLoss)}</td><td class="pl r ${cls(pct)}">${pct.toFixed(1)}%</td></tr>`;
+  }).join("");
+  // One small card per position: best bid/ask, spread, where the price sits in today's band, depth levels.
+  const cards = s.rows.filter(x => x.quote).map(x => {
+    const q = x.quote, spread = q.bid > 0 ? (q.ask / q.bid - 1) * 100 : 0;
+    const pos = q.ceil > q.floor ? Math.max(0, Math.min(100, (x.price - q.floor) / (q.ceil - q.floor) * 100)) : 50;
+    let depth = `<small>Kademe verisi yok (yalnız en iyi alış/satış). Tam derinlik MobilG'de canlı akışla gelir.</small>`;
+    if (x.depth) {
+      const max = Math.max(...x.depth.map(l => Math.max(l.bidQty || 0, l.askQty || 0)), 1);
+      const tb = x.depth.reduce((a, l) => a + (l.bidQty || 0), 0), ta = x.depth.reduce((a, l) => a + (l.askQty || 0), 0);
+      depth = `<table class="depth"><tr><th>Alış adet</th><th>Alış</th><th>Satış</th><th>Satış adet</th></tr>` + x.depth.map(l =>
+        `<tr><td style="background:linear-gradient(to left, rgba(90,164,105,.25) ${(l.bidQty || 0) / max * 100}%, transparent 0)">${(l.bidQty || 0).toLocaleString("tr-TR")}</td>
+         <td class="up">${tl(l.bid)}</td><td class="down">${tl(l.ask)}</td>
+         <td style="background:linear-gradient(to right, rgba(196,85,60,.25) ${(l.askQty || 0) / max * 100}%, transparent 0)">${(l.askQty || 0).toLocaleString("tr-TR")}</td></tr>`).join("") +
+        `</table><small>Alış / satış dengesi: %${(tb / (tb + ta || 1) * 100).toFixed(0)} alış</small>`;
+    }
+    return `<div class="card"><div class="row"><b style="color:var(--fg)">${name(x)}</b>
+        <span>${tl(x.price)} ${x.dayPct === undefined ? "" : `<span class="${cls(x.dayPct)}">${sign(x.dayPct)}</span>`}</span></div>
+      <div class="row"><span>Alış <b class="up">${tl(q.bid)}</b></span><span>Satış <b class="down">${tl(q.ask)}</b></span><span>Makas %${spread.toFixed(2)}</span></div>
+      <div class="band"><i style="left:${pos}%"></i></div>
+      <div class="row"><small>Taban ${tl(q.floor)}</small><small>Tavan ${tl(q.ceil)}</small></div>${depth}</div>`;
   }).join("");
   const bal = (r.data.balances && r.data.balances.rows) || [];
   const cash = bal.find(b => /Net Bakiye/i.test(b.description));
   const overall = bal.find(b => /OVERALL/i.test(b.description));
-  box.innerHTML = `<table><thead><tr><th>Hisse</th><th>Adet</th><th>Maliyet</th><th>Fiyat</th><th>K/Z</th><th>%</th></tr></thead>
-    <tbody>${rows || '<tr><td colspan="6"><small>Pozisyon yok.</small></td></tr>'}</tbody>
-    <tfoot><tr><td colspan="4">Toplam K/Z</td><td class="${cls(s.totalProfitLoss)}">${tl(s.totalProfitLoss || 0)}</td><td></td></tr></tfoot></table>
+  box.innerHTML = `<table><thead><tr><th>Hisse</th><th>Adet</th><th>Maliyet</th><th>Fiyat</th><th>Gün</th><th class="pl l">K/Z</th><th class="pl r">%</th></tr></thead>
+    <tbody>${rows || '<tr><td colspan="7"><small>Pozisyon yok.</small></td></tr>'}</tbody>
+    <tfoot><tr><td colspan="5">Toplam K/Z</td><td class="pl l ${cls(s.totalProfitLoss)}">${tl(s.totalProfitLoss || 0)}</td><td class="pl r"></td></tr></tfoot></table>
+    <small>Gün: bugünkü değişim. K/Z ve %: maliyetine göre toplam.</small>
     <div class="row"><span>Hisse değeri</span><span>${tl(s.totalAmount || 0)} TL</span></div>
     ${cash ? `<div class="row"><span>Nakit (T / T+2)</span><span>${tl(cash.tBalance)} / ${tl(cash.t2Balance)} TL</span></div>` : ""}
-    ${overall ? `<div class="row"><span>Toplam</span><span>${tl(overall.tBalance)} TL</span></div>` : ""}`;
+    ${overall ? `<div class="row"><span>Toplam</span><span>${tl(overall.tBalance)} TL</span></div>` : ""}
+    ${cards ? `<div style="margin-top:10px"><b>Alış / satış ve derinlik</b></div>${cards}` : ""}`;
   $("asof").textContent = new Date().toLocaleTimeString("tr-TR");
 }
 

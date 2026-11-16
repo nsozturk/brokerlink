@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.5
+- Portfolio: day change column; P/L and % grouped in one tinted block.
+- Per-position cards: best bid/ask, spread, position in the daily band, depth levels when available.
+- Catalog: corrected depth field names.
+
 ## 0.3.4
 - The "log in to MobilG" status in the popup header is clickable too.
 

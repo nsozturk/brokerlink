@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "brokerlink",
-  "version": "0.3.4",
+  "version": "0.3.5",
   "description": "Unofficial local bridge between your logged-in PhillipCapital MobilG tab and your AI tools (MCP). Not affiliated with PhillipCapital.",
   "permissions": [
     "scripting",

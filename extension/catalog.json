@@ -18,7 +18,7 @@
     "gmo_positions":         {"path": "OrderTransaction/getGmoUserPositionAsync", "params": ["retType"], "doc": "Foreign (GMO) positions"},
     "price_info":            {"path": "StockOrder/getStockPriceInfoAsync", "params": ["symbolId", "symbol", "market", "buyCell", "detail"], "app_number": true, "doc": "Bid/ask, floor/ceiling, limit, sellable balance, cost, gross settlement flag"},
     "current_price":         {"path": "StockOrder/currentPriceAsync", "params": ["symbolId", "stock", "market"], "doc": "Current price"},
-    "depth":                 {"path": "StockOrder/getStockDepthsAsync", "params": ["symbolId"], "doc": "Order book snapshot: b0..b4 bid px, w0..w4 bid qty, a0..a4 ask px, v0..v4 ask qty, k0..k4 order counts (levels = depth licence)"},
+    "depth":                 {"path": "StockOrder/getStockDepthsAsync", "params": ["symbolId"], "doc": "Order book snapshot: b0..b4 bid price, v0..v4 bid quantity, q0..q4 bid order count, a0..a4 ask price, w0..w4 ask quantity, k0..k4 ask order count. Often all zeros: MobilG pushes live depth over SignalR; use price_info for the best bid/ask"},
     "last_trades":           {"path": "StockOrder/getLastCompletedAsync", "params": ["symbolId"], "doc": "Recent trades tape: price, quantity, time"},
     "akd":                   {"path": "StockOrder/getAkdDatasAsync", "params": ["stockCode"], "doc": "Broker distribution (AKD). Empty without AKD licence"},
     "metrics":               {"path": "StockOrder/getMetricAsync", "params": ["symbol", "type"], "doc": "Foreign (US) stocks only: 52w high/low, returns, avg volume, valuation. Returns zeros for BIST symbols"},

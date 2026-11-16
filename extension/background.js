@@ -232,7 +232,33 @@ async function portfolio() {
   });
   let body = res.result.body;
   for (let i = 0; i < 2 && typeof body === "string"; i++) { try { body = JSON.parse(body); } catch { break; } }
-  return res.result.status === 200 ? { data: body } : { error: `MobilG answered ${res.result.status}` };
+  if (res.result.status !== 200) return { error: `MobilG answered ${res.result.status}` };
+  // Per position: best bid/ask, today's band and day change, plus depth levels when MobilG returns them.
+  // ponytail: previous close = midpoint of today's floor/ceiling (BIST band is symmetric), off by at most a
+  // tick. The REST depth snapshot is often all zeros (full depth is pushed over SignalR): the popup then
+  // shows the best level only. Upgrade path: listen to the hub's getDepthMessage in the page.
+  const pi = await resolve({ name: "price_info" }), dp = await resolve({ name: "depth" });
+  const run = async (spec, params) => {
+    const [q] = await chrome.scripting.executeScript({ target: { tabId: tab.id }, func: inTab, args: [{ ...spec, body: null, params }] });
+    return JSON.parse(q.result.body);
+  };
+  await Promise.all((body.hubDataList || []).map(async h => {
+    const row = (body.stockOrders.rows || []).find(r => r.imkb === h.imkb);
+    if (!row) return;
+    try {
+      const d = await run(pi, { symbolId: String(h.symbolId), symbol: h.stock, market: h.market, buyCell: "A", detail: "0" });
+      const prev = (d.ceilPrice + d.floorPrice) / 2;
+      if (prev > 0) row.dayPct = (row.price / prev - 1) * 100;
+      row.quote = { bid: d.bid, ask: d.ask, floor: d.floorPrice, ceil: d.ceilPrice };
+    } catch { /* no quote for this row */ }
+    try {
+      const d = await run(dp, { symbolId: String(h.symbolId) });
+      const lv = [0, 1, 2, 3, 4].map(i => ({ bid: d["b" + i], bidQty: d["v" + i], ask: d["a" + i], askQty: d["w" + i] }))
+        .filter(l => l.bid > 0 || l.ask > 0);
+      if (lv.length) row.depth = lv;
+    } catch { /* no depth for this row */ }
+  }));
+  return { data: body };
 }
 
 chrome.runtime.onMessage.addListener((msg, _s, reply) => {
