@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-0.3.0-d97757" alt="version 0.3.0">
+  <img src="https://img.shields.io/github/v/release/nsozturk/brokerlink?color=d97757" alt="version 0.3.0">
   <img src="https://img.shields.io/badge/python-3.10%2B-3776ab" alt="Python 3.10+">
   <img src="https://img.shields.io/badge/license-MIT-green" alt="MIT">
   <img src="https://img.shields.io/badge/API%20keys-none-success" alt="no API keys">
