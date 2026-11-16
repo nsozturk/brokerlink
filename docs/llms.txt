@@ -1,0 +1,18 @@
+# brokerlink
+
+> brokerlink is a free, open-source Chrome extension and local MCP server that lets Claude, Codex, Gemini and other AI tools read your own PhillipCapital MobilG brokerage account through your logged-in browser tab.
+
+## What it does
+- Exposes portfolio, cash, orders, executed trades, statements, order book depth, last trades, metrics, OHLCV and KAP news as MCP tools.
+- Runs each call inside the user's own logged-in MobilG tab; the session never leaves the browser.
+- Orders are disabled by default and always need a human click. Money-out endpoints are blocked.
+
+## Install
+- `pip install mcp`, `python3 server/brokerlink.py serve`, load `extension/` as an unpacked Chrome extension, log in to MobilG.
+- Register `python3 server/brokerlink.py mcp` as a stdio MCP server in Claude Code, Codex, Gemini CLI, agy, OpenCode or Cursor.
+
+## Links
+- [README](https://github.com/nsozturk/brokerlink/blob/main/README.md)
+- [AGENTS.md](https://github.com/nsozturk/brokerlink/blob/main/AGENTS.md)
+- [Assistant rule](https://github.com/nsozturk/brokerlink/blob/main/GLOBAL_AGENT_RULE.md)
+- [Endpoint catalog](https://github.com/nsozturk/brokerlink/blob/main/extension/catalog.json)
