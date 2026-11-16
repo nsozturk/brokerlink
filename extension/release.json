@@ -1,7 +1,10 @@
 {
-  "version": "0.2.1",
-  "min_supported": "0.2.0",
+  "version": "0.2.2",
+  "min_supported": "0.2.2",
   "notes": {
+    "0.2.2": [
+      "Güncelleme zinciri uçtan uca doğrulandı (GitHub → indir → yeniden yükle)"
+    ],
     "0.2.1": [
       "Güncellemeler GitHub'dan denetlenir (3 saatte bir) ve tek tıkla kurulur",
       "Zorunlu güncellemede portföy ve ajan çağrıları kilitlenir"
