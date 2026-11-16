@@ -1,4 +1,4 @@
-# brokerlink — agent notes (Codex, agy, OpenCode, Gemini, Claude)
+# brokerlink — agent notes (Codex, Antigravity/agy, OpenCode, Claude)
 
 Read `README.md` first. Hard rules for anyone extending this repo:
 

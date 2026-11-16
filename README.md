@@ -119,8 +119,7 @@ python3 server/brokerlink.py serve
 |---|---|
 | Claude Code | `claude mcp add --scope user brokerlink -- python3 /path/server/brokerlink.py mcp` |
 | Codex | `codex mcp add brokerlink -- python3 /path/server/brokerlink.py mcp` |
-| Antigravity (agy) | `agy mcp add brokerlink python3 /path/server/brokerlink.py mcp` |
-| Gemini CLI | `~/.gemini/settings.json` → `"mcpServers": {"brokerlink": {"command": "python3", "args": ["/path/server/brokerlink.py", "mcp"]}}` |
+| Antigravity (eski adıyla Gemini CLI) | `agy mcp add brokerlink python3 /path/server/brokerlink.py mcp`<br>or in `~/.gemini/settings.json`: `"mcpServers": {"brokerlink": {"command": "python3", "args": ["/path/server/brokerlink.py", "mcp"]}}` |
 | OpenCode | `opencode.json` → `"mcp": {"brokerlink": {"type": "local", "command": ["python3", "/path/server/brokerlink.py", "mcp"]}}` |
 | Cursor, Claude Desktop, others | the same stdio command in their MCP settings |
 
@@ -196,7 +195,7 @@ An agent can only queue an order; a person must click Onayla (approve) in the po
 No. Those endpoints are on a deny list in both the daemon and the extension.
 
 ### Does it work with claude.ai or ChatGPT in the browser?
-No. Cloud chat apps cannot reach a server on your localhost. Use a local client such as Claude Code, Codex, Gemini CLI, agy, OpenCode, Cursor or Claude Desktop.
+No. Cloud chat apps cannot reach a server on your localhost. Use a local client such as Claude Code, Codex, Antigravity (eski adıyla Gemini CLI), OpenCode, Cursor or Claude Desktop.
 
 ### Why does MobilG log me out when I reload the page?
 MobilG ties the session to the page instance. brokerlink never reloads the tab for this reason.
