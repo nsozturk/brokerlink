@@ -23,15 +23,32 @@ brokerlink is a free, open-source Chrome extension and local MCP server that let
 
 Sample data, not a real account.
 
-| Portfolio | Depth | Charts |
-|---|---|---|
-| <img src="assets/screens/portfolio.png" width="260" alt="Portfolio tab: positions, cost, price, day change, profit and loss"> | <img src="assets/screens/depth.png" width="260" alt="Depth tab: best bid and ask, spread, daily band and depth levels per position"> | <img src="assets/screens/charts.png" width="260" alt="Charts tab: candlestick charts for the positions"> |
+| Portfolio | Charts with indicators |
+|---|---|
+| <img src="assets/screens/portfolio.png" width="330" alt="Portfolio tab: positions, cost, price, day change, profit and loss with a colour scale"> | <img src="assets/screens/charts.png" width="330" alt="Charts tab: candles with moving averages, Bollinger Bands, RSI and MACD"> |
 
-| Orders | Send without approval | History |
+| Depth ladder and last trades | Cumulative depth chart |
+|---|---|
+| <img src="assets/screens/depth.png" width="330" alt="Depth tab: ten bid and ask levels with quantity bars"> | <img src="assets/screens/depth-chart.png" width="330" alt="Depth tab: cumulative buy and sell curve around the mid price"> |
+
+| Orders waiting for approval | Send without approval | Order history |
 |---|---|---|
-| <img src="assets/screens/orders.png" width="260" alt="Orders tab: an order waiting for approval"> | <img src="assets/screens/auto-send.png" width="260" alt="Auto-send card with per-order limit, daily limit and duration"> | <img src="assets/screens/history.png" width="260" alt="History tab: sent, amended, cancelled and rejected orders"> |
+| <img src="assets/screens/orders.png" width="220" alt="Orders tab: an order waiting for approval"> | <img src="assets/screens/auto-send.png" width="220" alt="Auto-send card with per-order limit, daily limit and duration"> | <img src="assets/screens/history.png" width="220" alt="History tab: sent, amended, cancelled and rejected orders"> |
 
 A part-by-part tour is in the [documentation](https://nsozturk.github.io/brokerlink/#tour).
+
+## Popup features
+
+| Tab | What you get |
+|---|---|
+| **Portföy** (portfolio) | Positions with quantity, cost, last price, today's change, and profit/loss in TL and percent. The P/L pair is framed in a colour that runs from red (−15 % or worse) to green (+15 % or better). Totals, share value, cash (T / T+2) |
+| **Derinlik** (depth) | Per position: best bid and ask, spread, where the price sits between today's floor and ceiling. *Kademeler*: up to ten bid/ask levels with quantity bars, buy/sell balance and the last trades. *Derinlik grafiği*: cumulative depth curve. Levels need a depth licence on your account; without one the card says so |
+| **Grafik** (charts) | Candle, line or area charts of your positions from MobilG's own chart feed. Eleven periods: 1 hour, 1 day, 3 days, 1 week, 2 weeks, 1, 2, 3 and 6 months, YTD, 1 year. Nine indicators: MA 7 / 25 / 99, EMA 20, Bollinger Bands, VWAP, volume, RSI 14, MACD (up to five at once) |
+| **Emirler** (orders) | Orders queued by an AI with Onayla / Reddet, the orders on/off switch, and the "send without approval" card with your own limits |
+| **Geçmiş** (history) | Every order that passed through the extension with MobilG's answer, eight per page |
+| Version label | Opens the release notes; an update banner appears when a newer version exists |
+
+Also: a button that opens MobilG when you are not logged in, desktop notifications with the broker's answer for every order, and nothing loaded from third parties (charts are drawn locally).
 
 ## How it works
 
@@ -60,7 +77,7 @@ AI client ──stdio MCP──▶ brokerlink.py mcp ──HTTP──▶ brokerl
 | Safe writes | follow lists and price alarms |
 | Orders | new, cancel, amend: queued for your click, see below |
 
-The extension popup has five tabs: portfolio (positions, cost, last price, day change, profit/loss), depth (best bid/ask, spread, daily band, depth levels with a depth licence), charts (candles for your positions), orders (approvals and settings) and order history. Release notes open from the version label.
+The extension popup shows the same data without an AI client: see [Popup features](#popup-features).
 
 **Never included:** money-out and asset-transfer endpoints (EFT, transfers, FX conversion, collateral), login, password and settings, and the broker's AI-authorization switches. They are on a deny list.
 
