@@ -20,6 +20,7 @@ async function show(t) {
   if (t !== "news") chrome.storage.local.set({ tab: t });
   if (t === "history") renderHistory();
   if (t === "charts") renderCharts();
+  if (t === "depth") renderDepth();
 }
 document.querySelectorAll("#nav button").forEach(b => { b.onclick = () => show(b.dataset.t); });
 $("ver").onclick = () => show("news");          // release notes live behind the version label
@@ -65,35 +66,13 @@ async function renderPortfolio() {
   }
   if (!r || r.error) { box.innerHTML = `<small>${esc((r && r.error) || "Cevap yok.")}</small>`; return; }
   const s = r.data.stockOrders || { rows: [] };
-  const name = x => esc(String(x.symbolWithGroup || x.imkb).replace(/\(.*\)/, ""));
   // Border colour scale: red at -15 % or worse, through amber, to the greenest green at +15 % or better.
   const hue = pct => `border-color:hsl(${Math.max(0, Math.min(130, (pct + 15) / 30 * 130))} 62% 46%)`;
-  const sign = n => (n >= 0 ? "+" : "") + n.toFixed(2) + "%";
   const rows = s.rows.map(x => {
     const pct = x.cost ? (x.price / x.cost - 1) * 100 : 0;
     const day = x.dayPct === undefined ? "<td>–</td>" : `<td class="${cls(x.dayPct)}">${sign(x.dayPct)}</td>`;
     return `<tr><td>${name(x)}</td><td>${x.quantity}</td><td>${tl(x.cost)}</td><td>${tl(x.price)}</td>${day}
       <td class="pl l ${cls(x.profitLoss)}" style="${hue(pct)}">${tl(x.profitLoss)}</td><td class="pl r ${cls(pct)}" style="${hue(pct)}">${pct.toFixed(1)}%</td></tr>`;
-  }).join("");
-  // One small card per position: best bid/ask, spread, where the price sits in today's band, depth levels.
-  const cards = s.rows.filter(x => x.quote && x.quote.bid > 0).map(x => {
-    const q = x.quote, spread = q.bid > 0 ? (q.ask / q.bid - 1) * 100 : 0;
-    const pos = q.ceil > q.floor ? Math.max(0, Math.min(100, (x.price - q.floor) / (q.ceil - q.floor) * 100)) : 50;
-    let depth = `<small>${r.data.depthLicence ? "Kademe verisi şu an gelmedi (piyasa kapalı olabilir)." : "Hesabında derinlik lisansı yok; yalnız en iyi alış/satış gösteriliyor. Lisans MobilG'den alınır."}</small>`;
-    if (x.depth) {
-      const max = Math.max(...x.depth.map(l => Math.max(l.bidQty || 0, l.askQty || 0)), 1);
-      const tb = x.depth.reduce((a, l) => a + (l.bidQty || 0), 0), ta = x.depth.reduce((a, l) => a + (l.askQty || 0), 0);
-      depth = `<table class="depth"><tr><th>Alış adet</th><th>Alış</th><th>Satış</th><th>Satış adet</th></tr>` + x.depth.map(l =>
-        `<tr><td style="background:linear-gradient(to left, rgba(90,164,105,.25) ${(l.bidQty || 0) / max * 100}%, transparent 0)">${(l.bidQty || 0).toLocaleString("tr-TR")}</td>
-         <td class="up">${tl(l.bid)}</td><td class="down">${tl(l.ask)}</td>
-         <td style="background:linear-gradient(to right, rgba(196,85,60,.25) ${(l.askQty || 0) / max * 100}%, transparent 0)">${(l.askQty || 0).toLocaleString("tr-TR")}</td></tr>`).join("") +
-        `</table><small>Alış / satış dengesi: %${(tb / (tb + ta || 1) * 100).toFixed(0)} alış</small>`;
-    }
-    return `<div class="card"><div class="row"><b style="color:var(--fg)">${name(x)}</b>
-        <span>${tl(x.price)} ${x.dayPct === undefined ? "" : `<span class="${cls(x.dayPct)}">${sign(x.dayPct)}</span>`}</span></div>
-      <div class="row"><span>Alış <b class="up">${tl(q.bid)}</b></span><span>Satış <b class="down">${tl(q.ask)}</b></span><span>Makas %${spread.toFixed(2)}</span></div>
-      <div class="band"><i style="left:${pos}%"></i></div>
-      <div class="row"><small>Taban ${tl(q.floor)}</small><small>Tavan ${tl(q.ceil)}</small></div>${depth}</div>`;
   }).join("");
   const bal = (r.data.balances && r.data.balances.rows) || [];
   const cash = bal.find(b => /Net Bakiye/i.test(b.description));
@@ -106,11 +85,76 @@ async function renderPortfolio() {
     <div class="row"><span>Hisse değeri</span><span>${tl(s.totalAmount || 0)} TL</span></div>
     ${cash ? `<div class="row"><span>Nakit (T / T+2)</span><span>${tl(cash.tBalance)} / ${tl(cash.t2Balance)} TL</span></div>` : ""}
     ${overall ? `<div class="row"><span>Toplam</span><span>${tl(overall.tBalance)} TL</span></div>` : ""}`;
-  $("depth").innerHTML = cards || "<small>Pozisyon yok.</small>";
-  holdings = s.rows;
+  holdings = s.rows; depthLicence = r.data.depthLicence;
+  renderDepth();
   renderCharts();
   $("asof").textContent = new Date().toLocaleTimeString("tr-TR");
 }
+
+// ---- depth tab: order-book ladder + last trades, or cumulative depth chart (portfolio holdings only)
+const name = x => esc(String(x.symbolWithGroup || x.imkb).replace(/\(.*\)/, ""));
+const sign = n => (n >= 0 ? "+" : "") + n.toFixed(2) + "%";
+const qty = n => Number(n || 0).toLocaleString("tr-TR");
+let depthLicence = 0, depthView = "ladder";
+function drawDepth(cv, lv) {
+  const dpr = window.devicePixelRatio || 1, W = cv.clientWidth, H = cv.clientHeight, g = cv.getContext("2d");
+  cv.width = W * dpr; cv.height = H * dpr; g.scale(dpr, dpr);
+  let a = 0, b = 0;
+  const bids = lv.filter(l => l.bid > 0).map(l => [l.bid, b += l.bidQty || 0]), asks = lv.filter(l => l.ask > 0).map(l => [l.ask, a += l.askQty || 0]);
+  const max = Math.max(a, b, 1), mid = W / 2, y = v => H - 16 - v / max * (H - 26);
+  const side = (pts, dir, stroke, fill) => {          // step curve growing away from the mid price
+    if (!pts.length) return;
+    const step = (mid - 4) / pts.length;
+    g.beginPath(); g.moveTo(mid, H - 16);
+    pts.forEach(([, cum], i) => { g.lineTo(mid + dir * i * step, y(cum)); g.lineTo(mid + dir * (i + 1) * step, y(cum)); });
+    g.lineTo(mid + dir * pts.length * step, H - 16); g.closePath();
+    g.fillStyle = fill; g.fill(); g.strokeStyle = stroke; g.stroke();
+  };
+  side(bids, -1, "#5aa469", "rgba(90,164,105,.25)"); side(asks, 1, "#c4553c", "rgba(196,85,60,.25)");
+  g.font = "10px -apple-system, sans-serif"; g.fillStyle = "#a8a49b";
+  if (bids.length) { g.textAlign = "left"; g.fillText(tl(bids[bids.length - 1][0]), 2, H - 3); g.fillText(qty(b) + " lot alış", 2, 10); }
+  if (asks.length) { g.textAlign = "right"; g.fillText(tl(asks[asks.length - 1][0]), W - 2, H - 3); g.fillText(qty(a) + " lot satış", W - 2, 10); }
+  g.textAlign = "center"; g.fillText(bids.length && asks.length ? tl((bids[0][0] + asks[0][0]) / 2) : "", mid, H - 3);
+}
+function renderDepth() {
+  const bar = $("depth-bar"); bar.innerHTML = "";
+  for (const [v, label] of [["ladder", "Kademeler"], ["chart", "Derinlik grafiği"]]) {
+    const b = Object.assign(document.createElement("button"), { className: "chip" + (depthView === v ? " on" : ""), textContent: label });
+    b.onclick = () => { depthView = v; chrome.storage.local.set({ depthView }); renderDepth(); };
+    bar.append(b);
+  }
+  const box = $("depth"), rows = holdings.filter(x => x.quote && x.quote.bid > 0);
+  if (!rows.length) { box.innerHTML = "<small>Pozisyon yok ya da fiyat alınamadı.</small>"; return; }
+  const noDepth = `<small>${depthLicence ? "Kademe verisi şu an gelmedi (piyasa kapalı olabilir)." : "Hesabında derinlik lisansı yok; kademeler ve derinlik grafiği için lisans gerekir (MobilG'den alınır). En iyi alış/satış ve son işlemler gösteriliyor."}</small>`;
+  box.innerHTML = rows.map((x, i) => {
+    const q = x.quote, spread = q.bid > 0 ? (q.ask / q.bid - 1) * 100 : 0;
+    const pos = q.ceil > q.floor ? Math.max(0, Math.min(100, (x.price - q.floor) / (q.ceil - q.floor) * 100)) : 50;
+    let body;
+    if (depthView === "chart") body = x.depth ? `<canvas data-i="${i}" style="height:120px"></canvas>` : noDepth;
+    else {
+      body = noDepth;
+      if (x.depth) {
+        const max = Math.max(...x.depth.map(l => Math.max(l.bidQty || 0, l.askQty || 0)), 1);
+        const tb = x.depth.reduce((a, l) => a + (l.bidQty || 0), 0), ta = x.depth.reduce((a, l) => a + (l.askQty || 0), 0);
+        body = `<table class="depth"><tr><th>Alış lot</th><th>Alış</th><th>Satış</th><th>Satış lot</th></tr>` + x.depth.map(l =>
+          `<tr><td style="background:linear-gradient(to left, rgba(90,164,105,.25) ${(l.bidQty || 0) / max * 100}%, transparent 0)">${qty(l.bidQty)}</td>
+           <td class="up">${l.bid > 0 ? tl(l.bid) : ""}</td><td class="down">${l.ask > 0 ? tl(l.ask) : ""}</td>
+           <td style="background:linear-gradient(to right, rgba(196,85,60,.25) ${(l.askQty || 0) / max * 100}%, transparent 0)">${qty(l.askQty)}</td></tr>`).join("") +
+          `</table><small>Alış / satış dengesi: %${(tb / (tb + ta || 1) * 100).toFixed(0)} alış</small>`;
+      }
+      if (x.trades && x.trades.length) body += `<table class="depth" style="margin-top:8px"><tr><th>Saat</th><th>Lot</th><th>Fiyat</th></tr>` +
+        x.trades.map((t, k) => { const nx = x.trades[k + 1], c = nx ? (t.price > nx.price ? "up" : t.price < nx.price ? "down" : "") : "";
+          return `<tr><td>${esc(t.creationTime)}</td><td>${qty(t.quantity)}</td><td class="${c}">${tl(t.price)}</td></tr>`; }).join("") + `</table><small>Son işlemler</small>`;
+    }
+    return `<div class="card"><div class="row"><b style="color:var(--fg)">${name(x)}</b>
+        <span>${tl(x.price)} ${x.dayPct === undefined ? "" : `<span class="${cls(x.dayPct)}">${sign(x.dayPct)}</span>`}</span></div>
+      <div class="row"><span>Alış <b class="up">${tl(q.bid)}</b></span><span>Satış <b class="down">${tl(q.ask)}</b></span><span>Makas %${spread.toFixed(2)}</span></div>
+      <div class="band"><i style="left:${pos}%"></i></div>
+      <div class="row"><small>Taban ${tl(q.floor)}</small><small>Tavan ${tl(q.ceil)}</small></div>${body}</div>`;
+  }).join("");
+  box.querySelectorAll("canvas").forEach(cv => drawDepth(cv, rows[+cv.dataset.i].depth));
+}
+chrome.storage.local.get("depthView").then(o => { if (o.depthView) depthView = o.depthView; });
 
 // ---- charts (drawn from MobilG's chart feed; portfolio holdings only)
 let holdings = [], chartOpt = { range: "1A", type: "candle", ma: true, vol: true };

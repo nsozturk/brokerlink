@@ -1,7 +1,11 @@
 {
-  "version": "0.4.1",
+  "version": "0.4.2",
   "min_supported": "0.2.2",
   "notes": {
+    "0.4.2": [
+      "Derinlik sekmesi: 10 kademeli alış/satış tablosu ve son işlemler listesi",
+      "Derinlik grafiği: kümülatif alış/satış eğrisi (derinlik lisansı gerekir)"
+    ],
     "0.4.1": [
       "Grafik dönemleri: 1 saat, 1 gün, 3 gün, 1 hafta, 2 hafta, 1 ay, 2 ay, 3 ay, 6 ay, YTD, 1 yıl",
       "Grafik türü: Mum, Çizgi, Alan",

@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.4.2
+- Depth tab: ten-level ladder, last-trades tape, and a cumulative depth chart (levels need a depth licence).
+
 ## 0.4.1
 - Charts: eleven periods (1 hour to 1 year, YTD), candle / line / area, MA 7 and 25, volume bars.
 
