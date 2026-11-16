@@ -1,8 +1,18 @@
 {
-  "version": "0.2.0",
+  "version": "0.2.1",
   "min_supported": "0.2.0",
   "notes": {
-    "0.2.0": ["Portföy görünümü: hisseler, maliyet, fiyat, K/Z, nakit", "Yenilikler bölümü ve güncelleme denetimi (zorunlu güncelleme dahil)", "Emir iptal ve düzeltme (kapalı gelir, popup onayı ister)"],
-    "0.1.0": ["İlk sürüm: MobilG okuma uçları, takip listesi ve alarm yazmaları, MCP köprüsü"]
+    "0.2.1": [
+      "Güncellemeler GitHub'dan denetlenir (3 saatte bir) ve tek tıkla kurulur",
+      "Zorunlu güncellemede portföy ve ajan çağrıları kilitlenir"
+    ],
+    "0.2.0": [
+      "Portföy görünümü: hisseler, maliyet, fiyat, K/Z, nakit",
+      "Yenilikler bölümü ve güncelleme denetimi (zorunlu güncelleme dahil)",
+      "Emir iptal ve düzeltme (kapalı gelir, popup onayı ister)"
+    ],
+    "0.1.0": [
+      "İlk sürüm: MobilG okuma uçları, takip listesi ve alarm yazmaları, MCP köprüsü"
+    ]
   }
 }

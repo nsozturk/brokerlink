@@ -73,6 +73,29 @@ def store(name, method, path, params, status, body):
     return body
 
 
+# ---------------------------------------------------------------- updates (git)
+CHECK_EVERY_S = 3 * 3600                 # one `git fetch` per 3 hours; nothing else leaves the machine
+_rel = {"t": 0.0, "at": None, "remote": None, "error": None}
+
+
+def git(*args):
+    import subprocess
+    env = {**os.environ, "PATH": "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin", "GIT_TERMINAL_PROMPT": "0"}
+    return subprocess.run(["git", "-C", ROOT, *args], capture_output=True, text=True, timeout=60,
+                          check=True, env=env).stdout.strip()
+
+
+def remote_release():
+    if time.time() - _rel["t"] > CHECK_EVERY_S:
+        _rel.update(t=time.time(), at=now())
+        try:
+            git("fetch", "--quiet", "origin", "main")
+            _rel.update(remote=json.loads(git("show", "origin/main:extension/release.json")), error=None)
+        except Exception as e:
+            _rel["error"] = str(getattr(e, "stderr", "") or e)[:200]
+    return _rel
+
+
 # ---------------------------------------------------------------- job queue
 jobs, results, lock, ready = {}, {}, threading.Lock(), threading.Condition()
 
@@ -186,8 +209,10 @@ class Handler(BaseHTTPRequestHandler):
             return self._send(403)
         if self.path == "/health":
             return self._send(200, {"ok": True, "pending": len(jobs)})
-        if self.path == "/release":                        # on-disk release info, read fresh: the update check
-            return self._send(200, json.load(open(os.path.join(ROOT, "extension", "release.json"))))
+        if self.path == "/release":                        # on-disk release + what origin/main has (checked every 3 h)
+            rel = json.load(open(os.path.join(ROOT, "extension", "release.json")))
+            r = remote_release()
+            return self._send(200, {**rel, "remote": r["remote"], "checked_at": r["at"], "check_error": r["error"]})
         if self.path == "/catalog":
             return self._send(200, CATALOG)
         if self.path == "/jobs/next":                      # extension long-poll
@@ -213,6 +238,14 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self):
         if self._forbidden():
             return self._send(403)
+        if self.path == "/update":                         # fast-forward to origin/main, then restart (launchd KeepAlive)
+            try:
+                out = git("pull", "--ff-only", "--quiet", "origin", "main")
+            except Exception as e:
+                return self._send(500, {"error": str(e)[:300]})
+            self._send(200, {"ok": True, "output": out})
+            threading.Timer(0.5, os._exit, [0]).start()
+            return
         if self.path == "/jobs":
             job, err = build_job(self._body())
             if err:

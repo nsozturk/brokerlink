@@ -59,9 +59,15 @@ async function renderUpdate() {
     box.className = "banner" + (u.forced ? " forced" : "");
     box.textContent = u.forced ? `Zorunlu güncelleme: v${u.latest}. Güncellenene kadar çalışmaz.` : `Yeni sürüm hazır: v${u.latest}`;
     const b = Object.assign(document.createElement("button"), { textContent: "Güncelle" });
-    b.onclick = () => chrome.runtime.reload();          // reloads the unpacked extension from disk
+    b.onclick = async () => {
+      b.disabled = true; b.textContent = "Güncelleniyor…";
+      const r = await chrome.runtime.sendMessage({ type: "doUpdate" });
+      if (r && r.error) { b.disabled = false; b.textContent = "Tekrar dene"; box.append(" " + r.error); }
+    };
     box.append(b);
   }
+  if (u && u.forced) for (const id of ["sec-portfolio", "sec-orders"]) document.getElementById(id).hidden = true;
+  if (u && u.checkedAt) document.getElementById("ver").textContent += " · son denetim " + new Date(u.checkedAt).toLocaleTimeString("tr-TR");
   const { seenVersion } = await chrome.storage.local.get("seenVersion");
   const notes = (u && u.notes) || rel.notes;            // daemon copy also lists versions newer than the loaded one
   document.getElementById("news").innerHTML = Object.entries(notes).map(([v, items]) =>

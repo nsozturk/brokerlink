@@ -1,11 +1,35 @@
 {
   "manifest_version": 3,
   "name": "brokerlink",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Unofficial local bridge between your logged-in PhillipCapital MobilG tab and your AI tools (MCP). Not affiliated with PhillipCapital.",
-  "permissions": ["scripting", "tabs", "alarms", "storage", "notifications"],
-  "host_permissions": ["https://mobilg.phillip.com.tr/*", "http://127.0.0.1:18890/*"],
-  "background": {"service_worker": "background.js"},
-  "action": {"default_popup": "popup.html", "default_icon": {"16": "icons/16.png", "32": "icons/32.png", "48": "icons/48.png", "128": "icons/128.png"}},
-  "icons": {"16": "icons/16.png", "32": "icons/32.png", "48": "icons/48.png", "128": "icons/128.png"}
+  "permissions": [
+    "scripting",
+    "tabs",
+    "alarms",
+    "storage",
+    "notifications"
+  ],
+  "host_permissions": [
+    "https://mobilg.phillip.com.tr/*",
+    "http://127.0.0.1:18890/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/16.png",
+      "32": "icons/32.png",
+      "48": "icons/48.png",
+      "128": "icons/128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/16.png",
+    "32": "icons/32.png",
+    "48": "icons/48.png",
+    "128": "icons/128.png"
+  }
 }

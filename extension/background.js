@@ -64,8 +64,11 @@ async function checkUpdate() {
   const loaded = chrome.runtime.getManifest().version;
   try {
     const rel = await (await fetch(`${DAEMON}/release`)).json();
-    updateState = { loaded, latest: rel.version, forced: cmp(loaded, rel.min_supported) < 0,
-                    available: cmp(loaded, rel.version) < 0, notes: rel.notes };
+    const needsPull = !!rel.remote && cmp(rel.remote.version, rel.version) > 0;   // origin/main is ahead of the disk
+    const newest = needsPull ? rel.remote : rel;
+    updateState = { loaded, latest: newest.version, forced: cmp(loaded, newest.min_supported) < 0,
+                    available: cmp(loaded, newest.version) < 0, needsPull, notes: newest.notes,
+                    checkedAt: rel.checked_at, checkError: rel.check_error };
   } catch { updateState = { loaded, forced: false, available: false }; }
   chrome.action.setBadgeText({ text: updateState.forced ? "!" : updateState.available ? "↑" : "" });
   chrome.action.setBadgeBackgroundColor({ color: updateState.forced ? "#c4553c" : "#d97757" });
@@ -142,7 +145,19 @@ async function poll() {
 }
 
 // Popup portfolio view: same in-tab call as the daemon's "portfolio", no daemon needed.
+// Pull (when origin is ahead) and reload this unpacked extension from disk.
+async function doUpdate() {
+  await checkUpdate();
+  if (updateState.needsPull) {
+    const r = await fetch(`${DAEMON}/update`, { method: "POST" });
+    if (!r.ok) return { error: (await r.json()).error || "git pull failed" };
+  }
+  setTimeout(() => chrome.runtime.reload(), 300);
+  return { ok: true };
+}
+
 async function portfolio() {
+  if ((await checkUpdate()).forced) return { error: "Update required." };
   const tab = await mobilgTab();
   if (!tab) return { error: "Open MobilG and log in." };
   const spec = await resolve({ name: "portfolio" });
@@ -158,6 +173,7 @@ async function portfolio() {
 chrome.runtime.onMessage.addListener((msg, _s, reply) => {
   if (msg.type === "approve") approveOrder(msg.id, msg.approve).then(() => reply({ ok: true }));
   if (msg.type === "update") checkUpdate().then(reply);
+  if (msg.type === "doUpdate") doUpdate().then(reply, e => reply({ error: String(e.message || e) }));
   if (msg.type === "portfolio") portfolio().then(reply, e => reply({ error: String(e.message || e) }));
   return true;
 });

@@ -40,3 +40,7 @@ Read `README.md` first. Hard rules for anyone extending this repo:
 Bump `version` in `extension/manifest.json` and `extension/release.json` together and add notes under the new
 version. Raise `min_supported` only when older builds must stop working (forced update: jobs answer 426 until
 the user clicks Update in the popup, which runs `chrome.runtime.reload()`).
+
+Updates reach users through git: the daemon runs `git fetch origin main` at most once per 3 hours and reads
+`origin/main:extension/release.json`; the popup's Update button calls `POST /update` (`git pull --ff-only`, daemon
+exits so launchd restarts it) and then `chrome.runtime.reload()`. A release is therefore: bump, commit, push to `main`.
