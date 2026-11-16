@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.2
+- Firefox support (event-page build, permission prompt in the popup).
+- `scripts/package.py`: Chrome zip and crx, Firefox xpi.
+- Popup screenshots from sample data in the README and a popup tour in the docs.
+
 ## 0.3.1
 - Order tools wait for the user's decision and return a clear `outcome` to the calling model; `order_result` can be asked repeatedly.
 - MCP replies say where the order switches live.

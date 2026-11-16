@@ -12,3 +12,5 @@ tmp/
 .roundtable/
 .agent-history/
 .claude/
+dist/
+*.pem

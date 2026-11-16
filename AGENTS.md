@@ -40,7 +40,9 @@ Read `README.md` first. Hard rules for anyone extending this repo:
 
 ## Releasing
 
-Bump `version` in `extension/manifest.json` and `extension/release.json` together and add notes under the new
+Bump `version` in `extension/manifest.json` and `extension/release.json` together, run
+`python3 scripts/package.py` (Firefox gets its own manifest there: `background.scripts` + gecko id; keep `background.js`
+free of service-worker-only APIs) and add notes under the new
 version. Raise `min_supported` only when older builds must stop working (forced update: jobs answer 426 until
 the user clicks Update in the popup, which runs `chrome.runtime.reload()`).
 

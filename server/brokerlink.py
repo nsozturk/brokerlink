@@ -18,6 +18,7 @@ CATALOG = json.load(open(os.path.join(ROOT, "extension", "catalog.json")))
 CONFIG_PATH = os.path.join(ROOT, "config.json")
 DB_PATH = os.path.join(ROOT, "data", "raw.sqlite")
 HOST, PORT = "127.0.0.1", 18890
+EXT_ORIGINS = ("chrome-extension://", "moz-extension://")
 JOB_TTL, WAIT_S = 150, 60
 
 # Orders: the on/off switch lives in the extension popup (the extension enforces it; the daemon only
@@ -186,7 +187,7 @@ class Handler(BaseHTTPRequestHandler):
         self.send_response(code)
         self.send_header("Content-Type", "application/json")
         origin = self.headers.get("Origin") or ""
-        if origin.startswith("chrome-extension://"):
+        if origin.startswith(EXT_ORIGINS):
             self.send_header("Access-Control-Allow-Origin", origin)
         self.end_headers()
         if obj is not None:
@@ -194,7 +195,7 @@ class Handler(BaseHTTPRequestHandler):
 
     def _forbidden(self):
         o = self.headers.get("Origin")       # only the extension or Origin-less local scripts
-        return bool(o) and not o.startswith("chrome-extension://")
+        return bool(o) and not o.startswith(EXT_ORIGINS)
 
     def _body(self):
         n = int(self.headers.get("Content-Length") or 0)

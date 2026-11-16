@@ -8,7 +8,7 @@
   <img src="https://img.shields.io/badge/license-MIT-green" alt="MIT">
   <img src="https://img.shields.io/badge/API%20keys-none-success" alt="no API keys">
   <a href="AGENTS.md"><img src="https://img.shields.io/badge/AI%20agent-native%20ready-8b5cf6" alt="AI agent ready"></a>
-  <img src="https://img.shields.io/badge/platform-Chrome%20%7C%20macOS%20%7C%20Linux-lightgrey" alt="platform">
+  <img src="https://img.shields.io/badge/browsers-Chrome%20%7C%20Firefox-lightgrey" alt="platform">
 </p>
 
 <p align="center">
@@ -18,6 +18,16 @@
 brokerlink is a free, open-source Chrome extension and local MCP server that lets Claude, Codex, Gemini and other AI tools read your own PhillipCapital MobilG brokerage account through your logged-in browser tab.
 
 **Unofficial.** Not affiliated with, endorsed by or supported by PhillipCapital. For your own account only, at your own risk. Not investment advice.
+
+## Screenshots
+
+Sample data, not a real account.
+
+| Portfolio | Orders | Send without approval | History |
+|---|---|---|---|
+| <img src="assets/screens/portfolio.png" width="210" alt="Portfolio tab: positions, cost, price, profit and loss"> | <img src="assets/screens/orders.png" width="210" alt="Orders tab: an order waiting for approval"> | <img src="assets/screens/auto-send.png" width="210" alt="Auto-send card with per-order limit, daily limit and duration"> | <img src="assets/screens/history.png" width="210" alt="History tab: sent, amended, cancelled and rejected orders"> |
+
+A part-by-part tour is in the [documentation](https://nsozturk.github.io/brokerlink/#tour).
 
 ## How it works
 
@@ -111,7 +121,9 @@ pip install -r requirements.txt   # Python 3.10+
 python3 server/brokerlink.py serve
 ```
 
-1. Chrome → `chrome://extensions` → Developer mode → **Load unpacked** → the `extension/` folder.
+1. Load the extension:
+   - **Chrome / Edge / Brave:** `chrome://extensions` → Developer mode → **Load unpacked** → the `extension/` folder.
+   - **Firefox 121+:** `python3 scripts/package.py`, then `about:debugging#/runtime/this-firefox` → **Load Temporary Add-on** → `dist/brokerlink-firefox-<version>.xpi`. Open the popup once and click **İzin ver** to grant site access (Firefox asks; Chrome grants at install).
 2. Open https://mobilg.phillip.com.tr and log in as usual.
 3. Register the MCP server (stdio command: `python3 /path/to/brokerlink/server/brokerlink.py mcp`):
 
@@ -137,6 +149,18 @@ Date formats follow MobilG and differ per endpoint; each catalog entry says whic
 ## Updates
 
 The daemon checks `origin/main` once every 3 hours (`git fetch`, nothing else leaves your machine). The popup shows what is new and an **Update** button that pulls and reloads the extension. A release can set `min_supported`; older builds then stop working until updated.
+
+## Packages
+
+Each [release](https://github.com/nsozturk/brokerlink/releases) carries ready-made files, built by `python3 scripts/package.py`:
+
+| File | Use |
+|---|---|
+| `brokerlink-chrome-<v>.zip` | Unzip, then **Load unpacked** in Chrome, Edge or Brave. This is the route that works everywhere |
+| `brokerlink-chrome-<v>.crx` | Signed Chrome package. Chrome on Windows and macOS refuses CRX files that are not from the Web Store, so use it on Linux or with an enterprise policy |
+| `brokerlink-firefox-<v>.xpi` | Firefox: temporary add-on in any edition; permanent install only in Developer Edition, Nightly or ESR with `xpinstall.signatures.required` off, because it is not signed by Mozilla |
+
+The one-click **Update** button needs a git clone. With a packaged install, update by installing the next release. You still need the daemon from this repository.
 
 ## Run the daemon at login (optional)
 
@@ -179,6 +203,7 @@ Linux: run `python3 server/brokerlink.py serve` from a systemd user unit with `R
 |---|---|
 | `extension/` | Chrome extension (MV3): `catalog.json` allowlist, `background.js`, popup, `release.json` |
 | `server/brokerlink.py` | `serve` (daemon + raw store) and `mcp` (stdio MCP server) |
+| `scripts/` | `package.py` (zip, xpi, crx) and `make_screenshots.py` (popup images from sample data) |
 | `tests/test_daemon.py` | Guard tests: allowlist, deny list, order switch and caps |
 | `research/` | Endpoint map parsed from MobilG's web app and order request shapes |
 | `docs/` | Documentation site (single HTML file) and `llms.txt` |
@@ -259,7 +284,9 @@ Read `README.md` first. Hard rules for anyone extending this repo:
 
 ## Releasing
 
-Bump `version` in `extension/manifest.json` and `extension/release.json` together and add notes under the new
+Bump `version` in `extension/manifest.json` and `extension/release.json` together, run
+`python3 scripts/package.py` (Firefox gets its own manifest there: `background.scripts` + gecko id; keep `background.js`
+free of service-worker-only APIs) and add notes under the new
 version. Raise `min_supported` only when older builds must stop working (forced update: jobs answer 426 until
 the user clicks Update in the popup, which runs `chrome.runtime.reload()`).
 

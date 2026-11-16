@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "brokerlink",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Unofficial local bridge between your logged-in PhillipCapital MobilG tab and your AI tools (MCP). Not affiliated with PhillipCapital.",
   "permissions": [
     "scripting",
@@ -12,7 +12,7 @@
   ],
   "host_permissions": [
     "https://mobilg.phillip.com.tr/*",
-    "http://127.0.0.1:18890/*"
+    "http://127.0.0.1/*"
   ],
   "background": {
     "service_worker": "background.js"

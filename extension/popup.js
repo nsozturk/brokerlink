@@ -147,6 +147,11 @@ async function renderUpdate() {
   chrome.storage.local.set({ seenVersion: loaded });
 }
 
+// Firefox treats host permissions as optional until the user grants them; Chrome grants them at install.
+const ORIGINS = { origins: ["https://mobilg.phillip.com.tr/*", "http://127.0.0.1/*"] };
+chrome.permissions.contains(ORIGINS).then(ok => { $("perm").hidden = ok; });
+$("perm-btn").onclick = async () => { if (await chrome.permissions.request(ORIGINS)) location.reload(); };
+
 chrome.storage.local.get("tab").then(async ({ tab }) => {
   const { pending = [] } = await chrome.storage.session.get("pending");
   show(pending.length ? "orders" : tab || "portfolio");
