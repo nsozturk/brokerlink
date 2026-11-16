@@ -21,7 +21,7 @@
     "depth":                 {"path": "StockOrder/getStockDepthsAsync", "params": ["symbolId"], "doc": "Order book snapshot: b0..b4 bid px, w0..w4 bid qty, a0..a4 ask px, v0..v4 ask qty, k0..k4 order counts (levels = depth licence)"},
     "last_trades":           {"path": "StockOrder/getLastCompletedAsync", "params": ["symbolId"], "doc": "Recent trades tape: price, quantity, time"},
     "akd":                   {"path": "StockOrder/getAkdDatasAsync", "params": ["stockCode"], "doc": "Broker distribution (AKD). Empty without AKD licence"},
-    "metrics":               {"path": "StockOrder/getMetricAsync", "params": ["symbol", "type"], "doc": "52w high/low, returns, avg volume, valuation metrics"},
+    "metrics":               {"path": "StockOrder/getMetricAsync", "params": ["symbol", "type"], "doc": "Foreign (US) stocks only: 52w high/low, returns, avg volume, valuation. Returns zeros for BIST symbols"},
     "stock_detail":          {"path": "StockOrder/getStockDetailAsync", "params": ["symbol"], "doc": "Company / instrument detail"},
     "stock_list":            {"path": "StockOrder/getAllStockListAsync", "params": ["type", "buySell", "shortSell"], "doc": "All instruments with symbolId (sid), market, prices. type=dashboard shortSell=0"},
     "highlights":            {"path": "StockOrder/getStockHighlightsAsync", "params": [], "doc": "Highlighted symbols"},

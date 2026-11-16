@@ -40,7 +40,7 @@ AI client ──stdio MCP──▶ brokerlink.py mcp ──HTTP──▶ brokerl
 |---|---|
 | Portfolio and cash | `portfolio`, `overall_history`, `bank_statement`, `stock_extract`, `stoppage` |
 | Trades and orders (read) | `executed_transactions` (any date range), `transaction_result_form`, `order_tracking`, `synthetic_orders`, `synthetic_order_logs` |
-| Market data | `price_info`, `depth` (order book), `last_trades` (tape), `akd` (broker distribution, needs licence), `metrics`, `chart_history` (OHLCV), `stock_list` |
+| Market data | `price_info`, `depth` (order book), `last_trades` (tape), `akd` (broker distribution, needs licence), `metrics` (foreign stocks), `chart_history` (OHLCV), `stock_list` |
 | News and research | `kap_for_symbol`, `kap_notifications`, `news`, `stock_reports`, `model_portfolio` |
 | VIOP, funds, IPO, foreign, FX, T+0 | `viop_*`, `fund_*`, `public_offering*`, `foreign_*`, `fx_*`, `t0_*` (read only) |
 | Safe writes | follow lists and price alarms |
