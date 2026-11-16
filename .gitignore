@@ -9,3 +9,6 @@ research/datafeed.js
 __pycache__/
 .DS_Store
 tmp/
+.roundtable/
+.agent-history/
+.claude/

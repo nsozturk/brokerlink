@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-0.2.3-d97757" alt="version 0.2.3">
+  <img src="https://img.shields.io/badge/version-0.2.4-d97757" alt="version 0.2.4">
   <img src="https://img.shields.io/badge/python-3.10%2B-3776ab" alt="Python 3.10+">
   <img src="https://img.shields.io/badge/license-MIT-green" alt="MIT">
   <img src="https://img.shields.io/badge/API%20keys-none-success" alt="no API keys">
@@ -86,7 +86,7 @@ Example prompt for any AI client: *"With brokerlink, find the symbolId of GARAN,
 
 ```bash
 git clone https://github.com/nsozturk/brokerlink.git && cd brokerlink
-pip install mcp
+pip install -r requirements.txt
 python3 server/brokerlink.py serve
 ```
 
@@ -118,6 +118,51 @@ Date formats follow MobilG and differ per endpoint; each catalog entry says whic
 
 The daemon checks `origin/main` once every 3 hours (`git fetch`, nothing else leaves your machine). The popup shows what is new and an **Update** button that pulls and reloads the extension. A release can set `min_supported`; older builds then stop working until updated.
 
+## Run the daemon at login (optional)
+
+macOS: save this as `~/Library/LaunchAgents/dev.brokerlink.plist` (fix the two paths), then `launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/dev.brokerlink.plist`. `KeepAlive` also lets the Update button restart the daemon.
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+  <key>Label</key><string>dev.brokerlink</string>
+  <key>ProgramArguments</key><array><string>/usr/bin/python3</string><string>/path/to/brokerlink/server/brokerlink.py</string><string>serve</string></array>
+  <key>RunAtLoad</key><true/><key>KeepAlive</key><true/>
+</dict></plist>
+```
+
+Linux: run `python3 server/brokerlink.py serve` from a systemd user unit with `Restart=always`.
+
+## Troubleshooting
+
+| Symptom | Cause and fix |
+|---|---|
+| `timed out: is the daemon running…` | Start `python3 server/brokerlink.py serve`; check the popup shows Daemon "running" |
+| `409 … Open MobilG and log in` | No logged-in MobilG tab in this Chrome profile |
+| `401` / `403` from MobilG | The session ended (often after a page reload). Log in again |
+| `426 … update required` | Popup → Update |
+| Tool says orders are disabled but the switch is on | Your AI client holds an old MCP process; restart the client |
+| `depth` returns zeros | Market closed, or your account has no depth licence |
+| `metrics` returns zeros | It only covers foreign stocks |
+| Update button fails | The folder must be a git clone with `origin` reachable; run `git pull` by hand to see the error |
+
+## Privacy and data
+
+- Leaves your machine: calls to MobilG from your own tab, and one `git fetch` every 3 hours. Nothing else; no analytics.
+- Stays on your machine: `data/raw.sqlite` (responses with session fields redacted) and `logs/`. Both are git-ignored. Delete them any time.
+- Uninstall: remove the extension, stop the daemon, delete the folder and the MCP entry in your client.
+
+## Repository layout
+
+| Path | What |
+|---|---|
+| `extension/` | Chrome extension (MV3): `catalog.json` allowlist, `background.js`, popup, `release.json` |
+| `server/brokerlink.py` | `serve` (daemon + raw store) and `mcp` (stdio MCP server) |
+| `tests/test_daemon.py` | Guard tests: allowlist, deny list, order switch and caps |
+| `research/` | Endpoint map parsed from MobilG's web app and order request shapes |
+| `docs/` | Documentation site (single HTML file) and `llms.txt` |
+
 ## FAQ
 
 ### Do I have to copy tokens or cookies after logging in?
@@ -143,6 +188,10 @@ MobilG ties the session to the page instance. brokerlink never reloads the tab f
 ## For AI agents
 
 See [`AGENTS.md`](AGENTS.md) for the rules of this repo, [`GLOBAL_AGENT_RULE.md`](GLOBAL_AGENT_RULE.md) for a snippet to paste into your own assistant, and [`llms.txt`](llms.txt).
+
+## Contributing and security
+
+See [`CONTRIBUTING.md`](CONTRIBUTING.md), [`SECURITY.md`](SECURITY.md) and [`CHANGELOG.md`](CHANGELOG.md).
 
 ## License
 

@@ -1,7 +1,10 @@
 {
-  "version": "0.2.3",
+  "version": "0.2.4",
   "min_supported": "0.2.2",
   "notes": {
+    "0.2.4": [
+      "Düzeltme: VİOP emir listesi, halka arz talepleri ve fon listesi okuma uçları yanlışlıkla engelleniyordu"
+    ],
     "0.2.3": [
       "Emirler varsayılan açık; pencereden açıp kapatılabilir",
       "Her emir yine pencerede senin onayını bekler"

@@ -13,6 +13,6 @@ otpToken) **in the body**; `StockOrder/BuySellAsync` carries them in the query s
 | Conditional order | POST `StockOrder/SetSyntheticOrderAsync` (from bundle) | not captured yet | — |
 | Conditional cancel | DELETE `StockOrder/DeleteSyntheticOrderAsync?id=` (from bundle) | — | — |
 
-Implemented in brokerlink (behind `orders_enabled` + popup approval): new, cancel, amend.
+Implemented in brokerlink (popup switch + popup approval): new, cancel, amend.
 Not implemented (left for a later contributor): chain, conditional, VIOP, funds, public offering, T0.
 Money-out endpoints (EFT, transfers, FX, collateral) are permanently out of scope.

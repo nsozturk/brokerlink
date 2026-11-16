@@ -8,7 +8,7 @@
 - Orders from an AI are only queued and always need a human click in the popup; a popup switch turns them off. Money-out endpoints are blocked.
 
 ## Install
-- `pip install mcp`, `python3 server/brokerlink.py serve`, load `extension/` as an unpacked Chrome extension, log in to MobilG.
+- `pip install -r requirements.txt`, `python3 server/brokerlink.py serve`, load `extension/` as an unpacked Chrome extension, log in to MobilG.
 - Register `python3 server/brokerlink.py mcp` as a stdio MCP server in Claude Code, Codex, Gemini CLI, agy, OpenCode or Cursor.
 
 ## Links
