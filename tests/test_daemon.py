@@ -18,7 +18,7 @@ def test_guards():
     assert all(v.get("method", "GET") == "GET" for v in b.CATALOG["endpoints"].values())
 
     b._state["orders_enabled"] = False
-    assert "disabled" in b.build_job({"kind": "order", "order": ORDER})[1]   # popup switch off
+    assert "Emirler" in b.build_job({"kind": "order", "order": ORDER})[1]   # popup switch off
     b._state["orders_enabled"] = True
     job, err = b.build_job({"kind": "order", "order": ORDER})
     assert err is None and job["kind"] == "order" and job["body"]["buyOrCell"] == "A"

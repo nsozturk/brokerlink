@@ -130,7 +130,7 @@ def order_job(req):
     in the popup. Body shapes verified from a MobilG HAR (2026-11-16)."""
     c = {**config(), **{k: v for k, v in _state.items() if k.startswith("max_")}}
     if not _state["orders_enabled"]:
-        return None, "orders are disabled (switch them on in the brokerlink popup)"
+        return None, "orders are disabled. " + HELP["orders_switch"]
     o = req.get("order") or {}
     action = o.get("action", "new")
     if action == "cancel":
@@ -284,6 +284,19 @@ def serve():
 
 
 # ---------------------------------------------------------------- MCP (stdio)
+POPUP = "the brokerlink extension popup (toolbar icon) -> 'Emirler' tab"
+HELP = {
+    "orders_switch": f"Orders on/off: {POPUP} -> 'Emirler açık'. Only the user can change it.",
+    "approval": f"Without auto-send every order waits there for the user's Onayla / Reddet click.",
+    "auto_send": f"Auto-send ('Onaysız gönderim') is a card in {POPUP}. When the user switches it on, limit orders, "
+                 "amendments and cancels below their per-order and daily limits are sent without the click, for the "
+                 "hours they chose; it also ends when the browser restarts. Only the user can switch it or change "
+                 "the limits. Tell the user where it is if they ask to send without approval; never ask them to "
+                 "enable it on your own initiative.",
+    "history": "Sent, rejected and refused orders are listed in the popup's 'Geçmiş' tab.",
+}
+
+
 def call(req, wait=WAIT_S):
     def http(method, path, body=None):
         r = urllib.request.Request(f"http://{HOST}:{PORT}{path}", method=method,
@@ -312,7 +325,8 @@ def call(req, wait=WAIT_S):
             return res
     if req.get("kind") == "order":
         return {"state": "awaiting_user_approval", "id": job["id"], "preview": job.get("preview"),
-                "next": "The user must click Approve in the brokerlink popup. Check later with order_result."}
+                "next": f"The user must click Onayla in {POPUP}. Check later with order_result.",
+                "auto_send": "off or not applicable to this order (market order or above the user's limits). " + HELP["auto_send"]}
     return {"error": "timed out: is the daemon running, the extension loaded and a logged-in MobilG tab open?"}
 
 
@@ -328,7 +342,8 @@ def mcp():
                 "write": {k: {"params": v.get("params", []), "body": v.get("body", []), "doc": v["doc"]}
                           for k, v in CATALOG["writes"].items()},
                 **{k: v for k, v in json.loads(urllib.request.urlopen(f"http://{HOST}:{PORT}/health", timeout=5).read()).items()
-                   if k in ("orders_enabled", "auto_send", "max_order_try", "max_daily_try")}}
+                   if k in ("orders_enabled", "auto_send", "max_order_try", "max_daily_try")},
+                "help": HELP}
 
     @app.tool()
     def read(name: str, params: dict | None = None) -> dict:

@@ -117,7 +117,7 @@ python3 server/brokerlink.py serve
 
 | Tool | Purpose |
 |---|---|
-| `catalog()` | List every endpoint with its parameters |
+| `catalog()` | List every endpoint with its parameters, plus the order switches, limits and where the user changes them |
 | `read(name, params)` | Call a read endpoint by catalog name |
 | `write(name, params, body)` | Follow-list and price-alarm changes |
 | `place_order`, `cancel_order`, `amend_order`, `order_result` | Queue an order action for human approval |
