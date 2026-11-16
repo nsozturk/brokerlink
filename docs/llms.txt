@@ -5,7 +5,7 @@
 ## What it does
 - Exposes portfolio, cash, orders, executed trades, statements, order book depth, last trades, metrics, OHLCV and KAP news as MCP tools.
 - Runs each call inside the user's own logged-in MobilG tab; the session never leaves the browser.
-- Orders are disabled by default and always need a human click. Money-out endpoints are blocked.
+- Orders from an AI are only queued and always need a human click in the popup; a popup switch turns them off. Money-out endpoints are blocked.
 
 ## Install
 - `pip install mcp`, `python3 server/brokerlink.py serve`, load `extension/` as an unpacked Chrome extension, log in to MobilG.

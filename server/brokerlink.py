@@ -20,9 +20,11 @@ DB_PATH = os.path.join(ROOT, "data", "raw.sqlite")
 HOST, PORT = "127.0.0.1", 18890
 JOB_TTL, WAIT_S = 150, 60
 
-# Orders are OFF unless config.json says otherwise. Even when on, every order waits for a human
-# click in the extension popup; caps below are checked before an order is ever queued.
-DEFAULT_CONFIG = {"orders_enabled": False, "max_order_try": 2500, "max_daily_try": 10000}
+# Orders: the on/off switch lives in the extension popup (the extension enforces it; the daemon only
+# mirrors it to answer early). Every order still waits for a human click in the popup, and the caps
+# below (override in config.json) are checked before an order is ever queued.
+DEFAULT_CONFIG = {"max_order_try": 2500, "max_daily_try": 10000}
+_state = {"orders_enabled": True}
 SECRET_KEYS = {"clientId", "ClientId", "otpToken", "dataToken", "hashkey", "hashKey", "userName", "email", "l"}
 
 
@@ -127,8 +129,8 @@ def order_job(req):
     """Equity order (BuySellAsync), cancel or amend. Off by default; capped; always needs a click
     in the popup. Body shapes verified from a MobilG HAR (2026-11-16)."""
     c = config()
-    if not c["orders_enabled"]:
-        return None, "orders are disabled (set orders_enabled in config.json)"
+    if not _state["orders_enabled"]:
+        return None, "orders are disabled (switch them on in the brokerlink popup)"
     o = req.get("order") or {}
     action = o.get("action", "new")
     if action == "cancel":
@@ -208,7 +210,7 @@ class Handler(BaseHTTPRequestHandler):
         if self._forbidden():
             return self._send(403)
         if self.path == "/health":
-            return self._send(200, {"ok": True, "pending": len(jobs)})
+            return self._send(200, {"ok": True, "pending": len(jobs), "orders_enabled": _state["orders_enabled"]})
         if self.path == "/release":                        # on-disk release + what origin/main has (checked every 3 h)
             rel = json.load(open(os.path.join(ROOT, "extension", "release.json")))
             r = remote_release()
@@ -238,6 +240,9 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self):
         if self._forbidden():
             return self._send(403)
+        if self.path == "/settings":                       # mirror of the popup switch, sent by the extension
+            _state["orders_enabled"] = bool(self._body().get("orders_enabled"))
+            return self._send(200, _state)
         if self.path == "/update":                         # fast-forward to origin/main, then restart (launchd KeepAlive)
             try:
                 out = git("pull", "--ff-only", "--quiet", "origin", "main")
@@ -318,7 +323,7 @@ def mcp():
         return {"read": {k: {"params": v["params"], "doc": v["doc"]} for k, v in CATALOG["endpoints"].items()},
                 "write": {k: {"params": v.get("params", []), "body": v.get("body", []), "doc": v["doc"]}
                           for k, v in CATALOG["writes"].items()},
-                "orders_enabled": config()["orders_enabled"]}
+                "orders_enabled": json.loads(urllib.request.urlopen(f"http://{HOST}:{PORT}/health", timeout=5).read())["orders_enabled"]}
 
     @app.tool()
     def read(name: str, params: dict | None = None) -> dict:
@@ -339,7 +344,7 @@ def mcp():
     @app.tool()
     def place_order(symbolId: str, stock: str, side: str, quantity: int, price: float,
                     type: str = "limit", tif: str = "day") -> dict:
-        """Queue an equity order for HUMAN approval. Disabled unless config.json orders_enabled=true.
+        """Queue an equity order for HUMAN approval. The user can switch orders off in the popup.
         Capped by max_order_try / max_daily_try. Nothing is sent until the user clicks Approve in the
         brokerlink popup. side buy|sell, type limit|market, tif day|ioc, stock like 'NTGAZ.E'."""
         return call({"kind": "order", "order": dict(symbolId=symbolId, stock=stock, side=side,
@@ -348,7 +353,7 @@ def mcp():
     @app.tool()
     def cancel_order(orderId: str) -> dict:
         """Queue a cancel of a working equity order (orderId from read('order_tracking')) for HUMAN
-        approval in the brokerlink popup. Disabled unless orders_enabled."""
+        approval in the brokerlink popup."""
         return call({"kind": "order", "order": {"action": "cancel", "orderId": orderId}}, wait=20)
 
     @app.tool()

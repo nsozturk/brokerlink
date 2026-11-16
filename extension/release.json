@@ -1,7 +1,11 @@
 {
-  "version": "0.2.2",
+  "version": "0.2.3",
   "min_supported": "0.2.2",
   "notes": {
+    "0.2.3": [
+      "Emirler varsayılan açık; pencereden açıp kapatılabilir",
+      "Her emir yine pencerede senin onayını bekler"
+    ],
     "0.2.2": [
       "Güncelleme zinciri uçtan uca doğrulandı (GitHub → indir → yeniden yükle)"
     ],

@@ -55,6 +55,15 @@ async function inTab(spec) {
   return { status: r.status, body: await r.text() };
 }
 
+// Orders switch (popup). Stored in the extension, enforced here; the daemon gets a mirror.
+async function ordersEnabled() {
+  const { ordersEnabled = true } = await chrome.storage.local.get("ordersEnabled");
+  return ordersEnabled;
+}
+async function pushSettings() {
+  await post("/settings", { orders_enabled: await ordersEnabled() }).catch(() => {});
+}
+
 // Update check: the daemon serves release.json from disk; we compare it with the loaded build.
 // forced = loaded build is older than min_supported -> no job runs until the user updates.
 const cmp = (a, b) => { const x = a.split(".").map(Number), y = b.split(".").map(Number);
@@ -78,6 +87,8 @@ async function checkUpdate() {
 async function runJob(job) {
   if (updateState.forced) return { status: 426, body: '{"error":"brokerlink extension update required: open the popup and click Update"}' };
   const spec = await resolve(job);
+  if (spec.order && !(await ordersEnabled()))
+    return { status: 403, body: '{"error":"orders are switched off in the brokerlink popup"}' };
   if (spec.order) {
     // Orders never run from the queue: they wait for a click in the popup (see approveOrder).
     const { pending = [] } = await chrome.storage.session.get("pending");
@@ -132,6 +143,7 @@ async function poll() {
   polling = true;
   try {
     await checkUpdate();
+    await pushSettings();
     for (let i = 0; i < 40; i++) {                 // ~ one alarm period of long-polls
       const r = await fetch(`${DAEMON}/jobs/next`).catch(() => null);
       if (!r || r.status !== 200) { if (!r) break; continue; }
@@ -172,6 +184,7 @@ async function portfolio() {
 
 chrome.runtime.onMessage.addListener((msg, _s, reply) => {
   if (msg.type === "approve") approveOrder(msg.id, msg.approve).then(() => reply({ ok: true }));
+  if (msg.type === "settings") pushSettings().then(() => reply({ ok: true }));
   if (msg.type === "update") checkUpdate().then(reply);
   if (msg.type === "doUpdate") doUpdate().then(reply, e => reply({ error: String(e.message || e) }));
   if (msg.type === "portfolio") portfolio().then(reply, e => reply({ error: String(e.message || e) }));

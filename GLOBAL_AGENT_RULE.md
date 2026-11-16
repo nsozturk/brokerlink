@@ -10,7 +10,7 @@ statements, order book, last trades, KAP news), use the `brokerlink` MCP server:
    `executed_transactions` and `bank_statement` take `startDate`/`endDate` as `YYYYMMDD`; omit `symbolId` for all symbols.
 3. Symbols need MobilG's numeric `symbolId` for `depth`, `last_trades` and `price_info`; get it from `stock_list` (`sid`).
 4. `write(...)` only changes follow lists and price alarms.
-5. Order tools are disabled by default. If enabled they only queue an order; tell the user to approve it in the
+5. Order tools only queue an order (the user may have switched them off in the popup); tell the user to approve it in the
    brokerlink popup and never claim an order was sent before `order_result` says so.
 
 Errors: `409` = no logged-in MobilG tab (ask the user to open and log in; never try to open or reload it),

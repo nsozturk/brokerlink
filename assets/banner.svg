@@ -21,7 +21,7 @@
       <text x="24" y="158" fill="#c9c4b8">AAAAA    100   120.00  126.50  </text><text x="352" y="158" fill="#5aa469">+650.00</text>
       <text x="24" y="184" fill="#c9c4b8">BBBBB    400    14.00   13.20  </text><text x="352" y="184" fill="#e0725c">-320.00</text>
       <text x="24" y="218" fill="#8b93a7">session never leaves your browser tab</text>
-      <text x="24" y="244" fill="#8b93a7">orders: off by default · human click</text>
+      <text x="24" y="244" fill="#8b93a7">orders: queued · sent only on your click</text>
     </g>
   </g>
 </svg>

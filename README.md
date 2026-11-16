@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-0.2.2-d97757" alt="version 0.2.2">
+  <img src="https://img.shields.io/badge/version-0.2.3-d97757" alt="version 0.2.3">
   <img src="https://img.shields.io/badge/python-3.10%2B-3776ab" alt="Python 3.10+">
   <img src="https://img.shields.io/badge/license-MIT-green" alt="MIT">
   <img src="https://img.shields.io/badge/API%20keys-none-success" alt="no API keys">
@@ -44,7 +44,7 @@ AI client ──stdio MCP──▶ brokerlink.py mcp ──HTTP──▶ brokerl
 | News and research | `kap_for_symbol`, `kap_notifications`, `news`, `stock_reports`, `model_portfolio` |
 | VIOP, funds, IPO, foreign, FX, T+0 | `viop_*`, `fund_*`, `public_offering*`, `foreign_*`, `fx_*`, `t0_*` (read only) |
 | Safe writes | follow lists and price alarms |
-| Orders | off by default, see below |
+| Orders | new, cancel, amend: queued for your click, see below |
 
 The extension popup also shows your positions, cost, last price and profit/loss.
 
@@ -52,7 +52,7 @@ The extension popup also shows your positions, cost, last price and profit/loss.
 
 ## Orders
 
-Off unless `config.json` contains `{"orders_enabled": true}`. Even then an order is only **queued**: nothing is sent until **you click Approve in the extension popup**, and `max_order_try` (default 2,500 TL) and `max_daily_try` (default 10,000 TL) are checked first. An AI agent cannot approve.
+On by default, with a switch in the extension popup ("Emirler açık") to turn them off. An order from an AI is only **queued**: nothing is sent until **you click Approve in the popup**. `max_order_try` (default 2,500 TL) and `max_daily_try` (default 10,000 TL) are checked first and can be changed in `config.json`. An AI agent cannot approve and cannot flip the switch: both live in the browser.
 
 ## Quick start
 
@@ -82,7 +82,7 @@ python3 server/brokerlink.py serve
 | `catalog()` | List every endpoint with its parameters |
 | `read(name, params)` | Call a read endpoint by catalog name |
 | `write(name, params, body)` | Follow-list and price-alarm changes |
-| `place_order`, `cancel_order`, `amend_order`, `order_result` | Queue an order action for human approval (disabled by default) |
+| `place_order`, `cancel_order`, `amend_order`, `order_result` | Queue an order action for human approval |
 
 Date formats follow MobilG and differ per endpoint; each catalog entry says which.
 
@@ -96,7 +96,7 @@ The daemon checks `origin/main` once every 3 hours (`git fetch`, nothing else le
 No. The extension reads the session inside the MobilG tab at the moment of each call.
 
 ### Can an AI place trades with this?
-Not by default. With `orders_enabled` an agent can only queue an order; a person must click Approve in the popup.
+An agent can only queue an order; a person must click Approve in the popup.
 
 ### Can it withdraw or transfer money?
 No. Those endpoints are on a deny list in both the daemon and the extension.

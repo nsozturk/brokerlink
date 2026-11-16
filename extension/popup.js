@@ -76,6 +76,13 @@ async function renderUpdate() {
   chrome.storage.local.set({ seenVersion: loaded });
 }
 
+const sw = document.getElementById("orders-on");
+chrome.storage.local.get("ordersEnabled").then(({ ordersEnabled = true }) => { sw.checked = ordersEnabled; });
+sw.onchange = async () => {
+  await chrome.storage.local.set({ ordersEnabled: sw.checked });
+  chrome.runtime.sendMessage({ type: "settings" });
+};
+
 render();
 renderUpdate();
 renderPortfolio();
