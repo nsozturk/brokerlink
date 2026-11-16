@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.3.4
+- The "log in to MobilG" status in the popup header is clickable too.
+
 ## 0.3.3
 - Portfolio tab offers an "open MobilG" button when no logged-in tab exists.
 

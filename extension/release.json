@@ -1,7 +1,10 @@
 {
-  "version": "0.3.3",
+  "version": "0.3.4",
   "min_supported": "0.2.2",
   "notes": {
+    "0.3.4": [
+      "Üstteki \"MobilG'ye giriş yap\" yazısı da tıklanınca MobilG'yi açar"
+    ],
     "0.3.3": [
       "MobilG açık değilse Portföy sekmesinde \"MobilG'yi aç ve giriş yap\" düğmesi"
     ],

@@ -5,6 +5,13 @@ const cls = n => (n >= 0 ? "up" : "down");
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const send = msg => chrome.runtime.sendMessage(msg);
 const MOBILG = "https://mobilg.phillip.com.tr/";
+// Only a click by the user opens or focuses MobilG.
+async function openMobilg() {
+  const [t] = await chrome.tabs.query({ url: MOBILG + "*" });
+  if (t) { await chrome.tabs.update(t.id, { active: true }); chrome.windows.update(t.windowId, { focused: true }); }
+  else chrome.tabs.create({ url: MOBILG });
+  window.close();
+}
 
 // ---- segmented control
 async function show(t) {
@@ -22,6 +29,8 @@ async function renderStatus() {
   const tabs = await chrome.tabs.query({ url: "https://mobilg.phillip.com.tr/*" });
   const live = tabs.some(t => !t.url.includes("/login"));
   $("tab").innerHTML = dot(live ? "#5aa469" : "#c4553c") + (live ? "MobilG açık" : "MobilG'ye giriş yap");
+  $("tab").style.cssText = live ? "" : "cursor:pointer;text-decoration:underline";
+  $("tab").onclick = live ? null : openMobilg;
 
   const { pending = [] } = await chrome.storage.session.get("pending");
   const box = $("pending");
@@ -48,12 +57,7 @@ async function renderPortfolio() {
   if (r && r.error === "no_tab") {            // the user's own click may open or focus MobilG; nothing else does
     box.innerHTML = `<p><small>MobilG açık değil ya da giriş yapılmamış.</small></p>`;
     const b = Object.assign(document.createElement("button"), { className: "act yes", textContent: "MobilG'yi aç ve giriş yap" });
-    b.onclick = async () => {
-      const [t] = await chrome.tabs.query({ url: MOBILG + "*" });
-      if (t) { await chrome.tabs.update(t.id, { active: true }); chrome.windows.update(t.windowId, { focused: true }); }
-      else chrome.tabs.create({ url: MOBILG });
-      window.close();
-    };
+    b.onclick = openMobilg;
     box.append(b);
     return;
   }
