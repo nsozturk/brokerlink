@@ -24,7 +24,7 @@ JOB_TTL, WAIT_S = 150, 60
 # mirrors it to answer early). Every order still waits for a human click in the popup, and the caps
 # below (override in config.json) are checked before an order is ever queued.
 DEFAULT_CONFIG = {"max_order_try": 2500, "max_daily_try": 10000}
-_state = {"orders_enabled": True, "yolo": False}
+_state = {"orders_enabled": True, "auto_send": False}
 SECRET_KEYS = {"clientId", "ClientId", "otpToken", "dataToken", "hashkey", "hashKey", "userName", "email", "l"}
 
 
@@ -128,7 +128,7 @@ _daily = {"day": None, "sum": 0.0}
 def order_job(req):
     """Equity order (BuySellAsync), cancel or amend. Off by default; capped; always needs a click
     in the popup. Body shapes verified from a MobilG HAR (2026-11-16)."""
-    c = config()
+    c = {**config(), **{k: v for k, v in _state.items() if k.startswith("max_")}}
     if not _state["orders_enabled"]:
         return None, "orders are disabled (switch them on in the brokerlink popup)"
     o = req.get("order") or {}
@@ -242,7 +242,10 @@ class Handler(BaseHTTPRequestHandler):
             return self._send(403)
         if self.path == "/settings":                       # mirror of the popup switch, sent by the extension
             body = self._body()
-            _state.update(orders_enabled=bool(body.get("orders_enabled")), yolo=bool(body.get("yolo")))
+            _state.update(orders_enabled=bool(body.get("orders_enabled")), auto_send=bool(body.get("auto_send")))
+            for k in ("max_order_try", "max_daily_try"):   # the user's limits from the popup (mirror only)
+                if isinstance(body.get(k), (int, float)) and body[k] > 0:
+                    _state[k] = body[k]
             return self._send(200, _state)
         if self.path == "/update":                         # fast-forward to origin/main, then restart (launchd KeepAlive)
             try:
@@ -325,7 +328,7 @@ def mcp():
                 "write": {k: {"params": v.get("params", []), "body": v.get("body", []), "doc": v["doc"]}
                           for k, v in CATALOG["writes"].items()},
                 **{k: v for k, v in json.loads(urllib.request.urlopen(f"http://{HOST}:{PORT}/health", timeout=5).read()).items()
-                   if k in ("orders_enabled", "yolo")}}
+                   if k in ("orders_enabled", "auto_send", "max_order_try", "max_daily_try")}}
 
     @app.tool()
     def read(name: str, params: dict | None = None) -> dict:
@@ -346,8 +349,8 @@ def mcp():
     @app.tool()
     def place_order(symbolId: str, stock: str, side: str, quantity: int, price: float,
                     type: str = "limit", tif: str = "day") -> dict:
-        """Queue an equity order for HUMAN approval (if the user switched YOLO mode on in the popup, limit
-        orders within the caps are sent at once and the reply is MobilG's answer). Orders can be switched off.
+        """Queue an equity order for HUMAN approval (if the user switched auto-send on in the popup, limit
+        orders within their limits are sent at once and the reply is MobilG's answer). Orders can be switched off.
         Capped by max_order_try / max_daily_try. Nothing is sent until the user clicks Approve in the
         brokerlink popup. side buy|sell, type limit|market, tif day|ioc, stock like 'NTGAZ.E'."""
         return call({"kind": "order", "order": dict(symbolId=symbolId, stock=stock, side=side,

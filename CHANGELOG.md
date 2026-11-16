@@ -1,7 +1,12 @@
 # Changelog
 
+## 0.3.0
+- Popup redesigned with a segmented control: portfolio, orders, history, release notes.
+- Order history and result notifications.
+- Auto-send card with user-set per-order limit, daily limit and duration.
+
 ## 0.2.5
-- YOLO mode: optional, session-only switch that sends small limit orders without the approval click.
+- Auto-send mode (first called YOLO): optional, session-only switch that sends small limit orders without the approval click.
 
 ## 0.2.4
 - Fix: three read endpoints (VIOP orders, public offering requests, fund list) were blocked by over-broad deny prefixes.

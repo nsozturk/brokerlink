@@ -61,8 +61,10 @@ async function ordersEnabled() {
   return ordersEnabled;
 }
 async function pushSettings() {
-  const { yoloUntil = 0 } = await chrome.storage.session.get("yoloUntil");
-  await post("/settings", { orders_enabled: await ordersEnabled(), yolo: Date.now() < yoloUntil }).catch(() => {});
+  const { autoUntil = 0 } = await chrome.storage.session.get("autoUntil");
+  const lim = await settings();
+  await post("/settings", { orders_enabled: await ordersEnabled(), auto_send: Date.now() < autoUntil,
+                            max_order_try: lim.maxOrder, max_daily_try: lim.maxDaily }).catch(() => {});
 }
 
 // Update check: the daemon serves release.json from disk; we compare it with the loaded build.
@@ -90,14 +92,13 @@ async function runJob(job) {
   const spec = await resolve(job);
   if (spec.order && !(await ordersEnabled()))
     return { status: 403, body: '{"error":"orders are switched off in the brokerlink popup"}' };
-  if (spec.order && await yoloAllows(job)) {
+  if (spec.order && await autoAllows(job)) {
     const result = await sendOrder(job);
-    chrome.notifications.create(job.id, { type: "basic", iconUrl: "icons/128.png",
-      title: "brokerlink YOLO: order sent without approval", message: job.preview || "" });
+    await record(job, "auto", result);
     return result;
   }
   if (spec.order) {
-    // Without YOLO, orders never run from the queue: they wait for a click in the popup (see approveOrder).
+    // Without auto-send, orders never run from the queue: they wait for a click in the popup (see approveOrder).
     const { pending = [] } = await chrome.storage.session.get("pending");
     pending.push(job);
     await chrome.storage.session.set({ pending });
@@ -121,26 +122,48 @@ async function post(path, payload) {
   await fetch(DAEMON + path, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) });
 }
 
-// YOLO mode (popup switch, off by default): limit orders within the caps go out without a click.
-// It lives in storage.session, so it ends when the browser restarts, and it expires after YOLO_HOURS.
-// Market orders and anything above the caps still wait for a click. Checked here, not in the daemon.
-const YOLO_HOURS = 4, YOLO_MAX_ORDER_TRY = 2500, YOLO_MAX_DAILY_TRY = 10000;
-async function yoloAllows(job) {
-  const { yoloUntil = 0, yoloSpent = { day: "", sum: 0 } } = await chrome.storage.session.get(["yoloUntil", "yoloSpent"]);
-  if (Date.now() > yoloUntil) return false;
-  const b = job.body || {};
+// Auto-send mode ("Onaysız gönderim", popup switch, off by default): limit orders within the user's own
+// caps go out without a click. The switch lives in storage.session, so it ends when the browser restarts,
+// and it expires after the hours the user chose. Market orders and anything above the caps still wait
+// for a click. Enforced here, not in the daemon.
+const DEFAULTS = { maxOrder: 2500, maxDaily: 10000, autoHours: 4 };
+async function settings() {
+  const { limits = {} } = await chrome.storage.local.get("limits");
+  return { ...DEFAULTS, ...limits };
+}
+async function autoAllows(job) {
+  const { autoUntil = 0, autoSpent = { day: "", sum: 0 } } = await chrome.storage.session.get(["autoUntil", "autoSpent"]);
+  if (Date.now() > autoUntil) return false;
+  const lim = await settings(), b = job.body || {};
   let amount = 0;
   if (job.name === "order") {
     if (b.orderType !== "LMT") return false;
     amount = Number(b.quantity) * Number(b.price);
   } else if (job.name === "order_amend") amount = Number(b.newAmount) * Number(b.newPrice);
   else if (job.name !== "order_cancel") return false;
-  if (!(amount >= 0) || amount > YOLO_MAX_ORDER_TRY) return false;
+  if (!(amount >= 0) || amount > lim.maxOrder) return false;
   const day = new Date().toDateString();
-  const sum = (yoloSpent.day === day ? yoloSpent.sum : 0) + amount;
-  if (sum > YOLO_MAX_DAILY_TRY) return false;
-  await chrome.storage.session.set({ yoloSpent: { day, sum } });
+  const sum = (autoSpent.day === day ? autoSpent.sum : 0) + amount;
+  if (sum > lim.maxDaily) return false;
+  await chrome.storage.session.set({ autoSpent: { day, sum } });
   return true;
+}
+
+// Order history shown in the popup (last 200) + a notification that carries MobilG's answer.
+async function record(job, mode, result) {
+  let ok = false, message = "";
+  try {
+    let b = JSON.parse(result.body); if (typeof b === "string") b = JSON.parse(b);
+    ok = result.status === 200 && b.success !== false && !((b.data || {}).errorCode);
+    message = (b.data && b.data.errorMessage) || b.error || b.state || b.title || "";
+  } catch { message = `HTTP ${result.status}`; }
+  if (mode === "rejected") { ok = false; message = "Sen reddettin"; }
+  const { history = [] } = await chrome.storage.local.get("history");
+  history.unshift({ t: Date.now(), kind: job.name, preview: job.preview || "", mode, ok, message });
+  await chrome.storage.local.set({ history: history.slice(0, 200) });
+  if (mode !== "rejected") chrome.notifications.create(job.id + "-r", { type: "basic", iconUrl: "icons/128.png",
+    title: ok ? (mode === "auto" ? "Emir onaysız gönderildi" : "Emir gönderildi") : "Emir gönderilemedi",
+    message: `${job.preview || ""}\n${message}` });
 }
 
 async function sendOrder(job) {
@@ -163,6 +186,7 @@ async function approveOrder(id, approve) {
   let result;
   if (!approve) result = { status: 499, body: '{"state":"rejected_by_user"}' };
   else result = await sendOrder(job);
+  await record(job, approve ? "approved" : "rejected", result);
   await post(`/jobs/${id}/result`, result);
 }
 

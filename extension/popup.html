@@ -1,47 +1,66 @@
 <!doctype html>
 <meta charset="utf-8">
 <style>
-  :root { --bg: #1f1e1d; --fg: #f5f4ef; --muted: #a8a49b; --accent: #d97757; --ok: #5aa469; --bad: #c4553c; }
-  body { margin: 0; width: 400px; background: var(--bg); color: var(--fg); font: 13px/1.4 -apple-system, system-ui, sans-serif; }
-  header { display: flex; align-items: center; gap: 8px; padding: 12px; border-bottom: 1px solid #333; }
-  header img { width: 24px; height: 24px; }
-  header b { color: var(--accent); }
-  section { padding: 10px 12px; }
-  .row { display: flex; justify-content: space-between; padding: 4px 0; color: var(--muted); }
-  .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
-  .card { border: 1px solid #3a3836; border-radius: 8px; padding: 8px; margin: 8px 0; }
-  button { border: 0; border-radius: 6px; padding: 6px 10px; color: #fff; cursor: pointer; }
-  .yes { background: var(--ok); } .no { background: var(--bad); }
+  :root { --bg: #1f1e1d; --fg: #f5f4ef; --muted: #a8a49b; --accent: #d97757; --ok: #5aa469; --bad: #c4553c; --line: #3a3836; }
+  body { margin: 0; width: 420px; background: var(--bg); color: var(--fg); font: 13px/1.4 -apple-system, system-ui, sans-serif; }
+  header { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-bottom: 1px solid #333; }
+  header img { width: 24px; height: 24px; } header b { color: var(--accent); }
+  header .st { margin-left: auto; text-align: right; color: var(--muted); font-size: 11px; }
+  .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; }
+  nav { display: flex; margin: 10px 12px 0; background: #2a2927; border-radius: 8px; padding: 3px; }
+  nav button { flex: 1; background: none; color: var(--muted); border: 0; border-radius: 6px; padding: 6px 0; cursor: pointer; font: inherit; }
+  nav button.on { background: var(--accent); color: #fff; }
+  main { height: 400px; overflow-y: auto; padding: 10px 12px; }
+  .row { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; color: var(--muted); }
+  .card { border: 1px solid var(--line); border-radius: 8px; padding: 10px; margin: 8px 0; }
+  .card.warn { border-color: var(--bad); }
+  button.act { border: 0; border-radius: 6px; padding: 6px 10px; color: #fff; cursor: pointer; }
+  .yes { background: var(--ok); } .no { background: var(--bad); } .plain { background: #44423f; }
   small { color: var(--muted); }
   table { width: 100%; border-collapse: collapse; margin-top: 6px; font-variant-numeric: tabular-nums; }
   th, td { padding: 3px 2px; text-align: right; } th:first-child, td:first-child { text-align: left; }
-  th { color: var(--muted); font-weight: 500; border-bottom: 1px solid #3a3836; }
-  tfoot td { border-top: 1px solid #3a3836; font-weight: 600; }
-  .banner { padding: 10px 12px; background: var(--accent); color: #fff; }
-  .banner.forced { background: var(--bad); }
-  .banner button { background: #fff; color: #1f1e1d; margin-left: 8px; }
+  th { color: var(--muted); font-weight: 500; border-bottom: 1px solid var(--line); }
+  tfoot td { border-top: 1px solid var(--line); font-weight: 600; }
+  .banner { padding: 10px 12px; background: var(--accent); color: #fff; } .banner.forced { background: var(--bad); }
+  .banner button { background: #fff; color: #1f1e1d; margin-left: 8px; border: 0; border-radius: 6px; padding: 4px 8px; cursor: pointer; }
   ul { margin: 4px 0 8px; padding-left: 18px; color: var(--muted); } .new { color: var(--accent); }
   .up { color: var(--ok); } .down { color: var(--bad); }
+  input[type=number] { width: 90px; background: #2a2927; color: var(--fg); border: 1px solid var(--line); border-radius: 6px; padding: 4px 6px; text-align: right; }
+  .h { border-bottom: 1px solid var(--line); padding: 6px 0; } .h small { display: block; }
+  .pager { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; }
 </style>
-<header><img src="icons/48.png" alt=""><div><b>brokerlink</b><br><small>unofficial MobilG ↔ MCP bridge</small></div></header>
+<header><img src="icons/48.png" alt=""><div><b>brokerlink</b> <small id="ver"></small><br><small>unofficial MobilG ↔ MCP bridge</small></div>
+  <div class="st"><span id="daemon">…</span><br><span id="tab">…</span></div></header>
 <div id="update"></div>
-<section>
-  <div class="row"><span>Daemon</span><span id="daemon">…</span></div>
-  <div class="row"><span>MobilG tab</span><span id="tab">…</span></div>
-</section>
-<section id="sec-portfolio">
-  <b>Portföy</b> <small id="asof"></small>
-  <div id="portfolio"><small>Yükleniyor…</small></div>
-</section>
-<section id="sec-orders">
-  <label style="float:right;color:var(--muted);cursor:pointer"><input type="checkbox" id="orders-on"> Emirler açık</label>
-  <label style="float:right;color:var(--bad);cursor:pointer;margin-right:10px"><input type="checkbox" id="yolo-on"> YOLO <span id="yolo-left"></span></label>
-  <b>Orders waiting for you</b>
-  <div id="pending"><small>None.</small></div>
-  <small id="orders-hint">Orders are sent only when you click Approve here. Agents cannot approve.</small>
-</section>
-<section>
-  <b>Yenilikler</b> <small id="ver"></small>
-  <div id="news"></div>
-</section>
+<nav id="nav">
+  <button data-t="portfolio">Portföy</button><button data-t="orders">Emirler</button>
+  <button data-t="history">Geçmiş</button><button data-t="news">Yenilikler</button>
+</nav>
+<main>
+  <div data-p="portfolio"><b>Portföy</b> <small id="asof"></small><div id="portfolio"><small>Yükleniyor…</small></div></div>
+
+  <div data-p="orders" hidden>
+    <div class="row"><b style="color:var(--fg)">Onay bekleyen emirler</b>
+      <label style="cursor:pointer"><input type="checkbox" id="orders-on"> Emirler açık</label></div>
+    <div id="pending"><small>Bekleyen emir yok.</small></div>
+    <small>Yapay zeka ajanlarının emirleri burada senin onayını bekler.</small>
+
+    <div class="card" id="auto-card">
+      <div class="row"><b style="color:var(--fg)">Onaysız gönderim</b>
+        <label style="cursor:pointer"><input type="checkbox" id="auto-on"> <span id="auto-left">Kapalı</span></label></div>
+      <small>Açıkken, aşağıdaki sınırların altındaki <b>limit</b> emirler, düzeltmeler ve iptaller sana sorulmadan gönderilir. Piyasa emirleri ve sınırı aşanlar yine onay bekler. Süre dolunca ya da tarayıcı kapanınca kendiliğinden kapanır.</small>
+      <div class="row"><span>Emir başına sınır (TL)</span><input type="number" id="max-order" min="1" step="100"></div>
+      <div class="row"><span>Günlük sınır (TL)</span><input type="number" id="max-daily" min="1" step="100"></div>
+      <div class="row"><span>Açık kalma süresi (saat)</span><input type="number" id="auto-hours" min="1" max="24" step="1"></div>
+      <small>Emir başına ve günlük sınır, onayla gönderilen emirler için de geçerlidir.</small>
+    </div>
+  </div>
+
+  <div data-p="history" hidden><b>Emir geçmişi</b> <small>(bu eklentiden geçenler)</small>
+    <div id="history"></div>
+    <div class="pager"><button class="act plain" id="prev">‹ Önceki</button><small id="page"></small><button class="act plain" id="next">Sonraki ›</button></div>
+  </div>
+
+  <div data-p="news" hidden><b>Yenilikler</b><div id="news"></div></div>
+</main>
 <script src="popup.js"></script>

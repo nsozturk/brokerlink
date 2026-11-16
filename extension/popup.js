@@ -1,39 +1,54 @@
+const $ = id => document.getElementById(id);
 const dot = c => `<span class="dot" style="background:${c}"></span>`;
+const tl = n => Number(n).toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const cls = n => (n >= 0 ? "up" : "down");
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const send = msg => chrome.runtime.sendMessage(msg);
 
-async function render() {
+// ---- segmented control
+async function show(t) {
+  document.querySelectorAll("#nav button").forEach(b => b.classList.toggle("on", b.dataset.t === t));
+  document.querySelectorAll("main > div").forEach(d => { d.hidden = d.dataset.p !== t; });
+  chrome.storage.local.set({ tab: t });
+  if (t === "history") renderHistory();
+}
+document.querySelectorAll("#nav button").forEach(b => { b.onclick = () => show(b.dataset.t); });
+
+// ---- status + pending approvals
+async function renderStatus() {
   const d = await fetch("http://127.0.0.1:18890/health").then(r => r.ok).catch(() => false);
-  document.getElementById("daemon").innerHTML = d ? dot("#5aa469") + "running" : dot("#c4553c") + "not running";
+  $("daemon").innerHTML = dot(d ? "#5aa469" : "#c4553c") + (d ? "sunucu açık" : "sunucu kapalı");
   const tabs = await chrome.tabs.query({ url: "https://mobilg.phillip.com.tr/*" });
   const live = tabs.some(t => !t.url.includes("/login"));
-  document.getElementById("tab").innerHTML = live ? dot("#5aa469") + "open" : dot("#c4553c") + "open MobilG and log in";
+  $("tab").innerHTML = dot(live ? "#5aa469" : "#c4553c") + (live ? "MobilG açık" : "MobilG'ye giriş yap");
 
   const { pending = [] } = await chrome.storage.session.get("pending");
-  const box = document.getElementById("pending");
-  if (!pending.length) { box.innerHTML = "<small>None.</small>"; return; }
+  const box = $("pending");
+  document.querySelector('[data-t="orders"]').textContent = pending.length ? `Emirler (${pending.length})` : "Emirler";
+  if (!pending.length) { box.innerHTML = "<small>Bekleyen emir yok.</small>"; return; }
   box.innerHTML = "";
   for (const j of pending) {
     const el = document.createElement("div");
     el.className = "card";
     el.textContent = j.preview || JSON.stringify(j.body);
-    const yes = Object.assign(document.createElement("button"), { className: "yes", textContent: "Approve" });
-    const no = Object.assign(document.createElement("button"), { className: "no", textContent: "Reject" });
-    yes.onclick = () => chrome.runtime.sendMessage({ type: "approve", id: j.id, approve: true }, render);
-    no.onclick = () => chrome.runtime.sendMessage({ type: "approve", id: j.id, approve: false }, render);
+    const yes = Object.assign(document.createElement("button"), { className: "act yes", textContent: "Onayla" });
+    const no = Object.assign(document.createElement("button"), { className: "act no", textContent: "Reddet" });
+    yes.onclick = () => send({ type: "approve", id: j.id, approve: true }).then(renderStatus);
+    no.onclick = () => send({ type: "approve", id: j.id, approve: false }).then(renderStatus);
     el.append(document.createElement("br"), yes, " ", no);
     box.append(el);
   }
 }
-const tl = n => n.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-const cls = n => (n >= 0 ? "up" : "down");
 
+// ---- portfolio
 async function renderPortfolio() {
-  const box = document.getElementById("portfolio");
-  const r = await chrome.runtime.sendMessage({ type: "portfolio" });
-  if (!r || r.error) { box.innerHTML = `<small>${(r && r.error) || "No answer."}</small>`; return; }
+  const box = $("portfolio");
+  const r = await send({ type: "portfolio" });
+  if (!r || r.error) { box.innerHTML = `<small>${esc((r && r.error) || "Cevap yok.")}</small>`; return; }
   const s = r.data.stockOrders || { rows: [] };
   const rows = s.rows.map(x => {
     const pct = x.cost ? (x.price / x.cost - 1) * 100 : 0;
-    return `<tr><td>${String(x.symbolWithGroup || x.imkb).replace(/\(.*\)/, "")}</td><td>${x.quantity}</td>
+    return `<tr><td>${esc(String(x.symbolWithGroup || x.imkb).replace(/\(.*\)/, ""))}</td><td>${x.quantity}</td>
       <td>${tl(x.cost)}</td><td>${tl(x.price)}</td>
       <td class="${cls(x.profitLoss)}">${tl(x.profitLoss)}</td><td class="${cls(pct)}">${pct.toFixed(1)}%</td></tr>`;
   }).join("");
@@ -46,62 +61,94 @@ async function renderPortfolio() {
     <div class="row"><span>Hisse değeri</span><span>${tl(s.totalAmount || 0)} TL</span></div>
     ${cash ? `<div class="row"><span>Nakit (T / T+2)</span><span>${tl(cash.tBalance)} / ${tl(cash.t2Balance)} TL</span></div>` : ""}
     ${overall ? `<div class="row"><span>Toplam</span><span>${tl(overall.tBalance)} TL</span></div>` : ""}`;
-  document.getElementById("asof").textContent = new Date().toLocaleTimeString("tr-TR");
+  $("asof").textContent = new Date().toLocaleTimeString("tr-TR");
 }
 
+// ---- order switches and limits
+const DEFAULTS = { maxOrder: 2500, maxDaily: 10000, autoHours: 4 };
+async function limits() {
+  const { limits = {} } = await chrome.storage.local.get("limits");
+  return { ...DEFAULTS, ...limits };
+}
+async function renderOrders() {
+  const { ordersEnabled = true } = await chrome.storage.local.get("ordersEnabled");
+  $("orders-on").checked = ordersEnabled;
+  const lim = await limits();
+  $("max-order").value = lim.maxOrder; $("max-daily").value = lim.maxDaily; $("auto-hours").value = lim.autoHours;
+  const { autoUntil = 0 } = await chrome.storage.session.get("autoUntil");
+  const on = Date.now() < autoUntil;
+  $("auto-on").checked = on;
+  $("auto-left").textContent = on ? `Açık · ${Math.ceil((autoUntil - Date.now()) / 60000)} dk kaldı` : "Kapalı";
+  $("auto-card").classList.toggle("warn", on);
+}
+$("orders-on").onchange = async () => {
+  await chrome.storage.local.set({ ordersEnabled: $("orders-on").checked });
+  send({ type: "settings" });
+};
+for (const [id, key] of [["max-order", "maxOrder"], ["max-daily", "maxDaily"], ["auto-hours", "autoHours"]]) {
+  $(id).onchange = async () => {
+    const lim = await limits(), v = Number($(id).value);
+    if (!(v > 0) || (key === "autoHours" && v > 24)) return renderOrders();     // ignore invalid input
+    await chrome.storage.local.set({ limits: { ...lim, [key]: v } });
+    send({ type: "settings" });
+  };
+}
+$("auto-on").onchange = async () => {
+  const lim = await limits();
+  if ($("auto-on").checked && !confirm(`Onaysız gönderim açılsın mı?\n\nYapay zeka ajanları ${tl(lim.maxOrder)} TL altındaki limit emirleri SANA SORMADAN gerçek hesabına gönderebilecek (günlük en çok ${tl(lim.maxDaily)} TL).\n${lim.autoHours} saat sonra ya da tarayıcı kapanınca kendiliğinden kapanır.`)) $("auto-on").checked = false;
+  await chrome.storage.session.set({ autoUntil: $("auto-on").checked ? Date.now() + lim.autoHours * 3600 * 1000 : 0 });
+  send({ type: "settings" });
+  renderOrders();
+};
+
+// ---- history (paginated)
+const PER_PAGE = 8; let page = 0;
+const KIND = { order: "Yeni emir", order_amend: "Düzeltme", order_cancel: "İptal" };
+const MODE = { auto: "onaysız gönderildi", approved: "onayınla gönderildi", rejected: "reddettin" };
+async function renderHistory() {
+  const { history = [] } = await chrome.storage.local.get("history");
+  const pages = Math.max(1, Math.ceil(history.length / PER_PAGE));
+  page = Math.min(page, pages - 1);
+  $("history").innerHTML = history.slice(page * PER_PAGE, (page + 1) * PER_PAGE).map(h =>
+    `<div class="h"><span class="${h.ok ? "up" : "down"}">${h.ok ? "✓" : "✕"}</span> <b>${KIND[h.kind] || h.kind}</b> · ${esc(MODE[h.mode] || h.mode)}
+     <small>${esc(h.preview)}</small><small>${new Date(h.t).toLocaleString("tr-TR")} · ${esc(h.message)}</small></div>`).join("")
+    || "<small>Henüz emir yok.</small>";
+  $("page").textContent = `${page + 1} / ${pages}`;
+  $("prev").disabled = page === 0; $("next").disabled = page >= pages - 1;
+}
+$("prev").onclick = () => { page--; renderHistory(); };
+$("next").onclick = () => { page++; renderHistory(); };
+
+// ---- updates + what's new
 async function renderUpdate() {
-  const u = await chrome.runtime.sendMessage({ type: "update" });
+  const u = await send({ type: "update" });
   const rel = await (await fetch(chrome.runtime.getURL("release.json"))).json();
   const loaded = chrome.runtime.getManifest().version;
-  document.getElementById("ver").textContent = "v" + loaded;
-  const box = document.getElementById("update");
+  $("ver").textContent = "v" + loaded;
+  const box = $("update");
   if (u && (u.forced || u.available)) {
     box.className = "banner" + (u.forced ? " forced" : "");
     box.textContent = u.forced ? `Zorunlu güncelleme: v${u.latest}. Güncellenene kadar çalışmaz.` : `Yeni sürüm hazır: v${u.latest}`;
     const b = Object.assign(document.createElement("button"), { textContent: "Güncelle" });
     b.onclick = async () => {
       b.disabled = true; b.textContent = "Güncelleniyor…";
-      const r = await chrome.runtime.sendMessage({ type: "doUpdate" });
+      const r = await send({ type: "doUpdate" });
       if (r && r.error) { b.disabled = false; b.textContent = "Tekrar dene"; box.append(" " + r.error); }
     };
     box.append(b);
   }
-  if (u && u.forced) for (const id of ["sec-portfolio", "sec-orders"]) document.getElementById(id).hidden = true;
-  if (u && u.checkedAt) document.getElementById("ver").textContent += " · son denetim " + new Date(u.checkedAt).toLocaleTimeString("tr-TR");
+  if (u && u.forced) { $("nav").hidden = true; document.querySelector("main").hidden = true; }
   const { seenVersion } = await chrome.storage.local.get("seenVersion");
-  const notes = (u && u.notes) || rel.notes;            // daemon copy also lists versions newer than the loaded one
-  document.getElementById("news").innerHTML = Object.entries(notes).map(([v, items]) =>
-    `<div class="${v === loaded && seenVersion !== loaded ? "new" : ""}">v${v}${v === loaded && seenVersion !== loaded ? " · yeni" : ""}</div>
-     <ul>${items.map(i => `<li>${i}</li>`).join("")}</ul>`).join("");
+  const notes = (u && u.notes) || rel.notes;
+  $("news").innerHTML = Object.entries(notes).map(([v, items]) =>
+    `<div class="${v === loaded && seenVersion !== loaded ? "new" : ""}">v${esc(v)}${v === loaded && seenVersion !== loaded ? " · yeni" : ""}</div>
+     <ul>${items.map(i => `<li>${esc(i)}</li>`).join("")}</ul>`).join("")
+    + (u && u.checkedAt ? `<small>Son güncelleme denetimi: ${new Date(u.checkedAt).toLocaleString("tr-TR")}</small>` : "");
   chrome.storage.local.set({ seenVersion: loaded });
 }
 
-const sw = document.getElementById("orders-on");
-chrome.storage.local.get("ordersEnabled").then(({ ordersEnabled = true }) => { sw.checked = ordersEnabled; });
-sw.onchange = async () => {
-  await chrome.storage.local.set({ ordersEnabled: sw.checked });
-  chrome.runtime.sendMessage({ type: "settings" });
-};
-
-const yolo = document.getElementById("yolo-on");
-async function renderYolo() {
-  const { yoloUntil = 0 } = await chrome.storage.session.get("yoloUntil");
-  const on = Date.now() < yoloUntil;
-  yolo.checked = on;
-  document.getElementById("yolo-left").textContent = on ? `(${Math.ceil((yoloUntil - Date.now()) / 60000)} dk)` : "";
-  document.getElementById("orders-hint").textContent = on
-    ? "YOLO AÇIK: 2.500 TL altındaki limit emirler onay sorulmadan gönderilir (günlük 10.000 TL). Piyasa emirleri ve üstü yine onay ister."
-    : "Orders are sent only when you click Approve here. Agents cannot approve.";
-  document.getElementById("orders-hint").style.color = on ? "var(--bad)" : "";
-}
-yolo.onchange = async () => {
-  if (yolo.checked && !confirm("YOLO modu: yapay zeka ajanları 2.500 TL altındaki limit emirleri SANA SORMADAN gerçek hesabına gönderebilir (günlük 10.000 TL). 4 saat sonra ya da tarayıcı kapanınca kendiliğinden kapanır. Açılsın mı?")) yolo.checked = false;
-  await chrome.storage.session.set({ yoloUntil: yolo.checked ? Date.now() + 4 * 3600 * 1000 : 0 });
-  chrome.runtime.sendMessage({ type: "settings" });
-  renderYolo();
-};
-renderYolo();
-
-render();
-renderUpdate();
-renderPortfolio();
+chrome.storage.local.get("tab").then(async ({ tab }) => {
+  const { pending = [] } = await chrome.storage.session.get("pending");
+  show(pending.length ? "orders" : tab || "portfolio");
+});
+renderStatus(); renderOrders(); renderUpdate(); renderPortfolio();
