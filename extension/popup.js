@@ -4,6 +4,7 @@ const tl = n => Number(n).toLocaleString("tr-TR", { minimumFractionDigits: 2, ma
 const cls = n => (n >= 0 ? "up" : "down");
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const send = msg => chrome.runtime.sendMessage(msg);
+const MOBILG = "https://mobilg.phillip.com.tr/";
 
 // ---- segmented control
 async function show(t) {
@@ -44,6 +45,18 @@ async function renderStatus() {
 async function renderPortfolio() {
   const box = $("portfolio");
   const r = await send({ type: "portfolio" });
+  if (r && r.error === "no_tab") {            // the user's own click may open or focus MobilG; nothing else does
+    box.innerHTML = `<p><small>MobilG açık değil ya da giriş yapılmamış.</small></p>`;
+    const b = Object.assign(document.createElement("button"), { className: "act yes", textContent: "MobilG'yi aç ve giriş yap" });
+    b.onclick = async () => {
+      const [t] = await chrome.tabs.query({ url: MOBILG + "*" });
+      if (t) { await chrome.tabs.update(t.id, { active: true }); chrome.windows.update(t.windowId, { focused: true }); }
+      else chrome.tabs.create({ url: MOBILG });
+      window.close();
+    };
+    box.append(b);
+    return;
+  }
   if (!r || r.error) { box.innerHTML = `<small>${esc((r && r.error) || "Cevap yok.")}</small>`; return; }
   const s = r.data.stockOrders || { rows: [] };
   const rows = s.rows.map(x => {

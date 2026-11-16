@@ -11,7 +11,8 @@ Read `README.md` first. Hard rules for anyone extending this repo:
    T+0) must go through `kind: "order"` jobs, which the extension parks in the popup until the user clicks
    Approve. Never add a code path that sends an order from the queue directly. Keep the TL caps. The on/off
    switch is stored and enforced in the extension; never let the daemon or an MCP tool change it.
-3. **Never reload or open MobilG.** A reload changes `clientport`; the server then 401s and the app calls
+3. **Never reload or open MobilG from code paths an agent can trigger.** (The only exception is the popup button
+   the user clicks when no MobilG tab exists.) A reload changes `clientport`; the server then 401s and the app calls
    `Auth/Logout`. Navigate only inside the SPA (`history.pushState` + `popstate`) when exploring.
 4. **Never print, log or store** `clientId`, `otpToken`, `hashKey`, passwords, OTPs. `scrub()` in
    `server/brokerlink.py` redacts them before the raw store; extend `SECRET_KEYS` when you find more.

@@ -1,7 +1,10 @@
 {
-  "version": "0.3.2",
+  "version": "0.3.3",
   "min_supported": "0.2.2",
   "notes": {
+    "0.3.3": [
+      "MobilG açık değilse Portföy sekmesinde \"MobilG'yi aç ve giriş yap\" düğmesi"
+    ],
     "0.3.2": [
       "Firefox desteği",
       "Hazır paketler: Chrome zip/crx ve Firefox xpi"

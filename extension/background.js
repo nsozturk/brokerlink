@@ -224,7 +224,7 @@ async function doUpdate() {
 async function portfolio() {
   if ((await checkUpdate()).forced) return { error: "Update required." };
   const tab = await mobilgTab();
-  if (!tab) return { error: "Open MobilG and log in." };
+  if (!tab) return { error: "no_tab" };
   const spec = await resolve({ name: "portfolio" });
   const date = new Date().toLocaleDateString("sv-SE", { timeZone: "Europe/Istanbul" });
   const [res] = await chrome.scripting.executeScript({

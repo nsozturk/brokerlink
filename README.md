@@ -183,7 +183,7 @@ Linux: run `python3 server/brokerlink.py serve` from a systemd user unit with `R
 | Symptom | Cause and fix |
 |---|---|
 | `timed out: is the daemon running…` | Start `python3 server/brokerlink.py serve`; check the popup shows Daemon "running" |
-| `409 … Open MobilG and log in` | No logged-in MobilG tab in this Chrome profile |
+| `409 … Open MobilG and log in` | No logged-in MobilG tab in this browser profile. The popup's Portföy tab has a button that opens it |
 | `401` / `403` from MobilG | The session ended (often after a page reload). Log in again |
 | `426 … update required` | Popup → Update |
 | Tool says orders are disabled but the switch is on | Your AI client holds an old MCP process; restart the client |

@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.3.3
+- Portfolio tab offers an "open MobilG" button when no logged-in tab exists.
+
 ## 0.3.2
 - Firefox support (event-page build, permission prompt in the popup).
 - `scripts/package.py`: Chrome zip and crx, Firefox xpi.
