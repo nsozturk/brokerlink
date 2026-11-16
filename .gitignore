@@ -1,0 +1,11 @@
+data/
+logs/
+config.json
+checkpoints/
+research/main.js
+research/datafeed.js
+*.har
+*.sqlite*
+__pycache__/
+.DS_Store
+tmp/

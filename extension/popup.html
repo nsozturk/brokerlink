@@ -1,0 +1,45 @@
+<!doctype html>
+<meta charset="utf-8">
+<style>
+  :root { --bg: #1f1e1d; --fg: #f5f4ef; --muted: #a8a49b; --accent: #d97757; --ok: #5aa469; --bad: #c4553c; }
+  body { margin: 0; width: 400px; background: var(--bg); color: var(--fg); font: 13px/1.4 -apple-system, system-ui, sans-serif; }
+  header { display: flex; align-items: center; gap: 8px; padding: 12px; border-bottom: 1px solid #333; }
+  header img { width: 24px; height: 24px; }
+  header b { color: var(--accent); }
+  section { padding: 10px 12px; }
+  .row { display: flex; justify-content: space-between; padding: 4px 0; color: var(--muted); }
+  .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+  .card { border: 1px solid #3a3836; border-radius: 8px; padding: 8px; margin: 8px 0; }
+  button { border: 0; border-radius: 6px; padding: 6px 10px; color: #fff; cursor: pointer; }
+  .yes { background: var(--ok); } .no { background: var(--bad); }
+  small { color: var(--muted); }
+  table { width: 100%; border-collapse: collapse; margin-top: 6px; font-variant-numeric: tabular-nums; }
+  th, td { padding: 3px 2px; text-align: right; } th:first-child, td:first-child { text-align: left; }
+  th { color: var(--muted); font-weight: 500; border-bottom: 1px solid #3a3836; }
+  tfoot td { border-top: 1px solid #3a3836; font-weight: 600; }
+  .banner { padding: 10px 12px; background: var(--accent); color: #fff; }
+  .banner.forced { background: var(--bad); }
+  .banner button { background: #fff; color: #1f1e1d; margin-left: 8px; }
+  ul { margin: 4px 0 8px; padding-left: 18px; color: var(--muted); } .new { color: var(--accent); }
+  .up { color: var(--ok); } .down { color: var(--bad); }
+</style>
+<header><img src="icons/48.png" alt=""><div><b>brokerlink</b><br><small>unofficial MobilG ↔ MCP bridge</small></div></header>
+<div id="update"></div>
+<section>
+  <div class="row"><span>Daemon</span><span id="daemon">…</span></div>
+  <div class="row"><span>MobilG tab</span><span id="tab">…</span></div>
+</section>
+<section>
+  <b>Portföy</b> <small id="asof"></small>
+  <div id="portfolio"><small>Yükleniyor…</small></div>
+</section>
+<section>
+  <b>Orders waiting for you</b>
+  <div id="pending"><small>None.</small></div>
+  <small>Orders are sent only when you click Approve here. Agents cannot approve.</small>
+</section>
+<section>
+  <b>Yenilikler</b> <small id="ver"></small>
+  <div id="news"></div>
+</section>
+<script src="popup.js"></script>

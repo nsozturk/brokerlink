@@ -1,0 +1,2203 @@
+[
+ {
+  "controller": "Auth",
+  "method": "logoutAsync",
+  "verb": "GET",
+  "path": "/api/Auth/Logout",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "otpToken",
+   "ip",
+   "port"
+  ],
+  "body": null
+ },
+ {
+  "controller": "Auth",
+  "method": "userMobileRedirectInfoAsync",
+  "verb": "GET",
+  "path": "/api/Auth/userMobileRedirectInfoAsync",
+  "params": [
+   "hashKey"
+  ],
+  "std": [],
+  "body": null
+ },
+ {
+  "controller": "Auth",
+  "method": "getUserLicenceAsync",
+  "verb": "GET",
+  "path": "/api/Auth/getUserLicenceAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "otpToken",
+   "ip",
+   "port"
+  ],
+  "body": null
+ },
+ {
+  "controller": "Auth",
+  "method": "getUserLicenceSelectionAsync",
+  "verb": "GET",
+  "path": "/api/Auth/getUserLicenceSelectionAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "otpToken",
+   "ip",
+   "port"
+  ],
+  "body": null
+ },
+ {
+  "controller": "Setting",
+  "method": "changeUserPasswordAsync",
+  "verb": "PUT",
+  "path": "/api/Setting/changeUserPasswordAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!",
+   "appNumber"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port"
+  ],
+  "body": "e"
+ },
+ {
+  "controller": "Setting",
+  "method": "userSettingUpdateAsync",
+  "verb": "GET",
+  "path": "/api/Setting/userSettingUpdateAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port"
+  ],
+  "body": null
+ },
+ {
+  "controller": "StockOrder",
+  "method": "buySellAsync",
+  "verb": "POST",
+  "path": "/api/StockOrder/buySellAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": "e"
+ },
+ {
+  "controller": "StockOrder",
+  "method": "buySellTApiAsync",
+  "verb": "POST",
+  "path": "/api/StockOrder/BuySellAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!",
+   "appNumber"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": "e"
+ },
+ {
+  "controller": "StockOrder",
+  "method": "currentPriceAsync",
+  "verb": "GET",
+  "path": "/api/StockOrder/currentPriceAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!",
+   "symbolId",
+   "stock",
+   "market"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": null
+ },
+ {
+  "controller": "StockOrder",
+  "method": "getStockDetailAsync",
+  "verb": "GET",
+  "path": "/api/StockOrder/getStockDetailAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!",
+   "symbol"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": null
+ },
+ {
+  "controller": "StockOrder",
+  "method": "getStockReportsAsync",
+  "verb": "GET",
+  "path": "/api/StockOrder/getStockReportsAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!",
+   "page",
+   "symbol"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": null
+ },
+ {
+  "controller": "StockOrder",
+  "method": "getStockReportDetailAsync",
+  "verb": "GET",
+  "path": "/api/StockOrder/getStockReportDetailAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!",
+   "id"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": null
+ },
+ {
+  "controller": "StockOrder",
+  "method": "getStockReportSymbolsAsync",
+  "verb": "GET",
+  "path": "/api/StockOrder/getStockReportSymbolsAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": null
+ },
+ {
+  "controller": "StockOrder",
+  "method": "GMONewOrderAsync",
+  "verb": "POST",
+  "path": "/api/StockOrder/GMONewOrderAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port"
+  ],
+  "body": "e"
+ },
+ {
+  "controller": "StockOrder",
+  "method": "GMOCancelOrderAsync",
+  "verb": "POST",
+  "path": "/api/StockOrder/GMOCancelOrderAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port"
+  ],
+  "body": "e"
+ },
+ {
+  "controller": "FollowList",
+  "method": "addAsync",
+  "verb": "POST",
+  "path": "/api/FollowList/addAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port"
+  ],
+  "body": "e"
+ },
+ {
+  "controller": "FollowList",
+  "method": "deleteAsync",
+  "verb": "DELETE",
+  "path": "/api/FollowList/deleteAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!",
+   "followListId"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port"
+  ],
+  "body": null
+ },
+ {
+  "controller": "FollowList",
+  "method": "updateOrderAsync",
+  "verb": "PUT",
+  "path": "/api/FollowList/updateOrderAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port"
+  ],
+  "body": "e"
+ },
+ {
+  "controller": "Dashboard",
+  "method": "addAsync",
+  "verb": "POST",
+  "path": "/api/Dashboard/addAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port"
+  ],
+  "body": "e"
+ },
+ {
+  "controller": "Dashboard",
+  "method": "updateAsync",
+  "verb": "PUT",
+  "path": "/api/Dashboard/updateAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port"
+  ],
+  "body": "e"
+ },
+ {
+  "controller": "Dashboard",
+  "method": "deleteAsync",
+  "verb": "DELETE",
+  "path": "/api/Dashboard/deleteAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!",
+   "userDashboardId"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port"
+  ],
+  "body": null
+ },
+ {
+  "controller": "Dashboard",
+  "method": "orderAsync",
+  "verb": "POST",
+  "path": "/api/Dashboard/orderAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port"
+  ],
+  "body": "e"
+ },
+ {
+  "controller": "Dashboard",
+  "method": "getHubsAsync",
+  "verb": "GET",
+  "path": "/api/Dashboard/getHubsAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port"
+  ],
+  "body": null
+ },
+ {
+  "controller": "Dashboard",
+  "method": "getDepthStepsAsync",
+  "verb": "GET",
+  "path": "/api/Dashboard/getDepthStepsAsync",
+  "params": [
+   "highPrice",
+   "lowPrice",
+   "stepPrice",
+   "selectedPrice"
+  ],
+  "std": [
+   "clientId"
+  ],
+  "body": null
+ },
+ {
+  "controller": "Dashboard",
+  "method": "getStockMessagesAsync",
+  "verb": "GET",
+  "path": "/api/Dashboard/getStockMessagesAsync",
+  "params": [
+   "market",
+   "",
+   "void 0!",
+   "",
+   "void 0!"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port"
+  ],
+  "body": null
+ },
+ {
+  "controller": "StockNotification",
+  "method": "addAsync",
+  "verb": "POST",
+  "path": "/api/StockNotification/addStockNotificationAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port"
+  ],
+  "body": "e"
+ },
+ {
+  "controller": "StockNotification",
+  "method": "deleteAsync",
+  "verb": "POST",
+  "path": "/api/StockNotification/deleteStockNotificationAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port"
+  ],
+  "body": "e"
+ },
+ {
+  "controller": "StockNotification",
+  "method": "readUserStockNotificationAsync",
+  "verb": "PUT",
+  "path": "/api/StockNotification/readUserStockNotificationAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port"
+  ],
+  "body": "e"
+ },
+ {
+  "controller": "UserPositionNotification",
+  "method": "readUserPositionNotificationAsync",
+  "verb": "PUT",
+  "path": "/api/UserPositionNotification/ReadUserPositionNotificationAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port"
+  ],
+  "body": "e"
+ },
+ {
+  "controller": "Wallet",
+  "method": "getStockSummaryAsync",
+  "verb": "GET",
+  "path": "/api/Wallet/getStockSummaryAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!",
+   "date",
+   "appNumber",
+   "gateAsp"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": null
+ },
+ {
+  "controller": "Wallet",
+  "method": "getBankStatementAsync",
+  "verb": "GET",
+  "path": "/api/Wallet/getBankStatementAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!",
+   "startDate",
+   "endDate"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": null
+ },
+ {
+  "controller": "Wallet",
+  "method": "getStockExtractAsync",
+  "verb": "GET",
+  "path": "/api/Wallet/getStockExtractAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!",
+   "startDate",
+   "endDate"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": null
+ },
+ {
+  "controller": "Wallet",
+  "method": "getStoppageAsync",
+  "verb": "GET",
+  "path": "/api/Wallet/getStoppageAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": null
+ },
+ {
+  "controller": "Wallet",
+  "method": "getStoppageDetailAsync",
+  "verb": "GET",
+  "path": "/api/Wallet/getStoppageDetailAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!",
+   "instrument"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": null
+ },
+ {
+  "controller": "Wallet",
+  "method": "getExecutedTransactionAsync",
+  "verb": "GET",
+  "path": "/api/Wallet/getExecutedTransactionAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!",
+   "startDate",
+   "endDate",
+   "symbolId"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": null
+ },
+ {
+  "controller": "Wallet",
+  "method": "getTransactionResultFormAsync",
+  "verb": "GET",
+  "path": "/api/Wallet/getTransactionResultFormAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!",
+   "transactionDate"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": null
+ },
+ {
+  "controller": "Wallet",
+  "method": "sendReportAsync",
+  "verb": "POST",
+  "path": "/api/Wallet/sendReportAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port"
+  ],
+  "body": "e"
+ },
+ {
+  "controller": "Wallet",
+  "method": "getCustomerOverallHistoryAsync",
+  "verb": "GET",
+  "path": "/api/Wallet/getCustomerOverallHistoryAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!",
+   "startDate",
+   "",
+   "void 0!",
+   "endDate",
+   "",
+   "void 0!"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": null
+ },
+ {
+  "controller": "Viop",
+  "method": "ViopOrderTrackingAsync",
+  "verb": "GET",
+  "path": "/api/Viop/viopOrderTrackingAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!",
+   "appNumber"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": null
+ },
+ {
+  "controller": "Viop",
+  "method": "ViopBuySellAsync",
+  "verb": "POST",
+  "path": "/api/Viop/viopBuySellAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!",
+   "appNumber"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": "e"
+ },
+ {
+  "controller": "Viop",
+  "method": "ViopOrderImprovementAsync",
+  "verb": "POST",
+  "path": "/api/Viop/viopOrderImprovementAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!",
+   "appNumber"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": "e"
+ },
+ {
+  "controller": "Viop",
+  "method": "ViopOrderCancelAsync",
+  "verb": "POST",
+  "path": "/api/Viop/viopOrderCancelAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!",
+   "appNumber"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": "e"
+ },
+ {
+  "controller": "Viop",
+  "method": "getViopOrderPriceInfoAsync",
+  "verb": "GET",
+  "path": "/api/Viop/getViopPriceInfoAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!",
+   "symbolId"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": null
+ },
+ {
+  "controller": "Viop",
+  "method": "getViopOverallAsync",
+  "verb": "GET",
+  "path": "/api/Viop/getViopOverallAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!",
+   "transactionDate"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": null
+ },
+ {
+  "controller": "Viop",
+  "method": "getExecutedTransactionAsync",
+  "verb": "GET",
+  "path": "/api/Viop/getExecutedTransactionAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!",
+   "startDate",
+   "endDate",
+   "rptId",
+   "sessionId",
+   "contract"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": null
+ },
+ {
+  "controller": "Viop",
+  "method": "getCashmovementsExtractAsync",
+  "verb": "GET",
+  "path": "/api/Viop/getCashmovementsExtractAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!",
+   "startDate",
+   "endDate"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": null
+ },
+ {
+  "controller": "Viop",
+  "method": "getAccountExtractAsync",
+  "verb": "GET",
+  "path": "/api/Viop/getAccountExtractAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!",
+   "startDate",
+   "endDate"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": null
+ },
+ {
+  "controller": "Viop",
+  "method": "getProfitLossReportAsync",
+  "verb": "GET",
+  "path": "/api/Viop/getProfitLossReportAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!",
+   "startDate",
+   "endDate"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": null
+ },
+ {
+  "controller": "Viop",
+  "method": "getViopTransactionResultFormAsync",
+  "verb": "GET",
+  "path": "/api/Viop/getViopTransactionResultFormAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!",
+   "transactionDate"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": null
+ },
+ {
+  "controller": "Viop",
+  "method": "getViopCollateralTypesAsync",
+  "verb": "GET",
+  "path": "/api/Viop/getViopCollateralTypeAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": null
+ },
+ {
+  "controller": "Viop",
+  "method": "getViopAllowedTransferAsync",
+  "verb": "GET",
+  "path": "/api/Viop/getViopAllowedTransferAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!",
+   "collateralType",
+   "source"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": null
+ },
+ {
+  "controller": "Viop",
+  "method": "ViopCollateralTransactionAsync",
+  "verb": "POST",
+  "path": "/api/Viop/ViopCollateralTransactionAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": "e"
+ },
+ {
+  "controller": "Viop",
+  "method": "getCollateralCustomerBalanceAsync",
+  "verb": "GET",
+  "path": "/api/Viop/GetCollateralCustomerBalanceAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": null
+ },
+ {
+  "controller": "Viop",
+  "method": "getViopCollateralReportAsync",
+  "verb": "GET",
+  "path": "/api/Viop/getViopCollateralReportAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!",
+   "startDate",
+   "endDate"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": null
+ },
+ {
+  "controller": "ForeignShares",
+  "method": "getHistoricalTransactionAsync",
+  "verb": "GET",
+  "path": "/api/ForeignShares/getHistoricalTransactionAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!",
+   "startDate",
+   "endDate",
+   "sessionId"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port"
+  ],
+  "body": null
+ },
+ {
+  "controller": "ForeignShares",
+  "method": "getAccountSummaryAsync",
+  "verb": "GET",
+  "path": "/api/ForeignShares/getAccountSummaryAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port"
+  ],
+  "body": null
+ },
+ {
+  "controller": "ForeignShares",
+  "method": "getBankStatementAsync",
+  "verb": "GET",
+  "path": "/api/ForeignShares/getBankStatementAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!",
+   "startDate",
+   "endDate"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port"
+  ],
+  "body": null
+ },
+ {
+  "controller": "EFT",
+  "method": "getCustomerBankListAsync",
+  "verb": "GET",
+  "path": "/api/EFT/getCustomerBankListAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": null
+ },
+ {
+  "controller": "EFT",
+  "method": "getEFTTransactionReportListAsync",
+  "verb": "GET",
+  "path": "/api/EFT/getEFTTransactionReportListAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!",
+   "startDate",
+   "FinishDate",
+   "status"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": null
+ },
+ {
+  "controller": "EFT",
+  "method": "getMoneyTransferBalanceAsync",
+  "verb": "GET",
+  "path": "/api/EFT/getMoneyTransferBalanceAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": null
+ },
+ {
+  "controller": "EFT",
+  "method": "getInternetParamterAsync",
+  "verb": "GET",
+  "path": "/api/EFT/getInternetParamterAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": null
+ },
+ {
+  "controller": "EFT",
+  "method": "getExistBankListAsync",
+  "verb": "GET",
+  "path": "/api/EFT/getExistBankListAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": null
+ },
+ {
+  "controller": "EFT",
+  "method": "getExistBankBranchListAsync",
+  "verb": "GET",
+  "path": "/api/EFT/getExistBankBranchListAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!",
+   "eftBankaId"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": null
+ },
+ {
+  "controller": "EFT",
+  "method": "moneyTransferAsync",
+  "verb": "POST",
+  "path": "/api/EFT/moneyTransferAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": "e"
+ },
+ {
+  "controller": "EFT",
+  "method": "eftCreateAsync",
+  "verb": "POST",
+  "path": "/api/EFT/eftBankIdentificationAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": "e"
+ },
+ {
+  "controller": "EFT",
+  "method": "getReconciliationAsync",
+  "verb": "GET",
+  "path": "/api/EFT/getReconciliationControlAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": null
+ },
+ {
+  "controller": "EFT",
+  "method": "setReconciliationAsync",
+  "verb": "POST",
+  "path": "/api/EFT/SetReconciliationAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": "e"
+ },
+ {
+  "controller": "EFT",
+  "method": "removeCustomerBankAsync",
+  "verb": "DELETE",
+  "path": "/api/EFT/removeCustomerBankAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": "{data:o}"
+ },
+ {
+  "controller": "PublicOffering",
+  "method": "getPublicOfferingAsync",
+  "verb": "GET",
+  "path": "/api/PublicOffering/getPublicOfferingAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!",
+   "requestType"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": null
+ },
+ {
+  "controller": "PublicOffering",
+  "method": "demandEntryAsync",
+  "verb": "POST",
+  "path": "/api/PublicOffering/demandEntryAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": "e"
+ },
+ {
+  "controller": "PublicOffering",
+  "method": "requestListAsync",
+  "verb": "GET",
+  "path": "/api/PublicOffering/requestListAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!",
+   "publicOfferingId",
+   "requestType",
+   "allPublicOfferings"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": null
+ },
+ {
+  "controller": "PublicOffering",
+  "method": "requesCancelAsync",
+  "verb": "DELETE",
+  "path": "/api/PublicOffering/requestCancelAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!",
+   "publicOfferingId",
+   "rowNumber"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": null
+ },
+ {
+  "controller": "InvestmentFund",
+  "method": "getFunTypeAsync",
+  "verb": "GET",
+  "path": "/api/InvestmentFund/getFunTypeAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": null
+ },
+ {
+  "controller": "InvestmentFund",
+  "method": "getFundFounderAsync",
+  "verb": "GET",
+  "path": "/api/InvestmentFund/getFundFounderListAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": null
+ },
+ {
+  "controller": "InvestmentFund",
+  "method": "fundReceiptListAsync",
+  "verb": "GET",
+  "path": "/api/InvestmentFund/fundReceiptListAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!",
+   "fundTransactionPlace",
+   "fundType",
+   "fundBuilderCode"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": null
+ },
+ {
+  "controller": "InvestmentFund",
+  "method": "getFundSaleListAsync",
+  "verb": "GET",
+  "path": "/api/InvestmentFund/getFundSaleListAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": null
+ },
+ {
+  "controller": "InvestmentFund",
+  "method": "getFundRequestListAsync",
+  "verb": "GET",
+  "path": "/api/InvestmentFund/getFundRequestListAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": null
+ },
+ {
+  "controller": "InvestmentFund",
+  "method": "buySellProcessAsync",
+  "verb": "POST",
+  "path": "/api/InvestmentFund/buySellProcessAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": "e"
+ },
+ {
+  "controller": "InvestmentFund",
+  "method": "fundCancelAsync",
+  "verb": "POST",
+  "path": "/api/InvestmentFund/FundCancelAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": "e"
+ },
+ {
+  "controller": "ForeignDerivative",
+  "method": "getAsync",
+  "verb": "GET",
+  "path": "/api/ForeignDerivative/getAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!",
+   "startDate",
+   "endDate",
+   "rptId"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port"
+  ],
+  "body": null
+ },
+ {
+  "controller": "Kap",
+  "method": "readUserKapNotificationAsync",
+  "verb": "PUT",
+  "path": "/api/Kap/ReadUserKapNotificationAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port"
+  ],
+  "body": "e"
+ },
+ {
+  "controller": "Kap",
+  "method": "updateUserKapFollowAsync",
+  "verb": "PUT",
+  "path": "/api/Kap/updateUserKapFollowAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port"
+  ],
+  "body": "e"
+ },
+ {
+  "controller": "StockQuestion",
+  "method": "setStockQuestionAsync",
+  "verb": "POST",
+  "path": "/api/StockQuestion/setStockQuestionAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port"
+  ],
+  "body": "e"
+ },
+ {
+  "controller": "Survey",
+  "method": "setSurveyResultAsync",
+  "verb": "POST",
+  "path": "/api/Survey/setSurveyResultAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!",
+   "finish"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port"
+  ],
+  "body": "e"
+ },
+ {
+  "controller": "T0",
+  "method": "getT0PriceTablesAsync",
+  "verb": "GET",
+  "path": "/api/T0/getT0PriceTablesAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": null
+ },
+ {
+  "controller": "T0",
+  "method": "getT0UsageListAsync",
+  "verb": "GET",
+  "path": "/api/T0/getT0UsageListAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": null
+ },
+ {
+  "controller": "T0",
+  "method": "getT0ReportAsync",
+  "verb": "GET",
+  "path": "/api/T0/getT0ReportAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!",
+   "startDate",
+   "finishDate"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": null
+ },
+ {
+  "controller": "T0",
+  "method": "getT0CostCalculateAsync",
+  "verb": "GET",
+  "path": "/api/T0/getT0CostCalculateAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!",
+   "date",
+   "symbolId",
+   "price"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": null
+ },
+ {
+  "controller": "T0",
+  "method": "sendT0UsageAsync",
+  "verb": "POST",
+  "path": "/api/T0/sendT0UsageAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": "e"
+ },
+ {
+  "controller": "Transfer",
+  "method": "getTransferStockListAsync",
+  "verb": "GET",
+  "path": "/api/Transfer/getTransferStockListAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": null
+ },
+ {
+  "controller": "Transfer",
+  "method": "getTransferExternalMemberListAsync",
+  "verb": "GET",
+  "path": "/api/Transfer/getTransferExternalMemberListAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": null
+ },
+ {
+  "controller": "Transfer",
+  "method": "getTransferReportOutAsync",
+  "verb": "GET",
+  "path": "/api/Transfer/getTransferReportOutAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": null
+ },
+ {
+  "controller": "Transfer",
+  "method": "getTransferReportInAsync",
+  "verb": "GET",
+  "path": "/api/Transfer/getTransferReportInAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": null
+ },
+ {
+  "controller": "Transfer",
+  "method": "sendTransferTransactionAsync",
+  "verb": "POST",
+  "path": "/api/Transfer/sendTransferTransactionAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": "e"
+ },
+ {
+  "controller": "Transfer",
+  "method": "getTransferRelatedMemberListAsync",
+  "verb": "GET",
+  "path": "/api/Transfer/getTransferRelatedMemberListAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": null
+ },
+ {
+  "controller": "Transfer",
+  "method": "getCustomerCreditInfoAsync",
+  "verb": "GET",
+  "path": "/api/Transfer/getCustomerCreditInfoAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": null
+ },
+ {
+  "controller": "Transfer",
+  "method": "sendCustomerCreditApplyAsync",
+  "verb": "POST",
+  "path": "/api/Transfer/sendCustomerCreditApplyAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": "e"
+ },
+ {
+  "controller": "ForeignCurrency",
+  "method": "getForeignCurrencyBalanceAsync",
+  "verb": "GET",
+  "path": "/api/ForeignCurrency/getForeignCurrencyBalanceAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!",
+   "pageType",
+   "appNumber"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": null
+ },
+ {
+  "controller": "ForeignCurrency",
+  "method": "getForeignCurrencyRatesAsync",
+  "verb": "GET",
+  "path": "/api/ForeignCurrency/getForeignCurrencyRatesAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": null
+ },
+ {
+  "controller": "ForeignCurrency",
+  "method": "setForeignCurrencyTransactionAsync",
+  "verb": "POST",
+  "path": "/api/ForeignCurrency/setForeignCurrencyTransactionAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": "e"
+ },
+ {
+  "controller": "ForeignCurrency",
+  "method": "sendForeignCurrencyCollateralTransactionAsync",
+  "verb": "POST",
+  "path": "/api/ForeignCurrency/sendForeignCurrencyCollateralTransactionAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": "e"
+ },
+ {
+  "controller": "ModalWindow",
+  "method": "sendModalWindowAsync",
+  "verb": "POST",
+  "path": "/api/ModalWindow/sendModalWindowAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port"
+  ],
+  "body": "e"
+ },
+ {
+  "controller": "UserMessages",
+  "method": "readUserMessagesAsync",
+  "verb": "PUT",
+  "path": "/api/UserMessages/ReadUserMessagesAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port"
+  ],
+  "body": "e"
+ },
+ {
+  "controller": "TradingView",
+  "method": "getWebHookAsync",
+  "verb": "GET",
+  "path": "/api/TradingView/getWebHookAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": null
+ },
+ {
+  "controller": "TradingView",
+  "method": "getWebHookLogsAsync",
+  "verb": "GET",
+  "path": "/api/TradingView/GetWebHookLogsAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!",
+   "tradingViewWebHookId"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": null
+ },
+ {
+  "controller": "TradingView",
+  "method": "createWebHookAsync",
+  "verb": "POST",
+  "path": "/api/TradingView/createWebHookAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": "e"
+ },
+ {
+  "controller": "TradingView",
+  "method": "updateWebHookAsync",
+  "verb": "PUT",
+  "path": "/api/TradingView/UpdateWebHookAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": "o"
+ },
+ {
+  "controller": "OrderTransaction",
+  "method": "customerSubMarketContractAgreeAsync",
+  "verb": "POST",
+  "path": "/api/OrderTransaction/customerSubMarketContractAgreeAsync",
+  "params": [
+   "",
+   "void 0!",
+   "",
+   "void 0!"
+  ],
+  "std": [
+   "clientId",
+   "culture",
+   "ip",
+   "port",
+   "otpToken"
+  ],
+  "body": "e"
+ }
+]
