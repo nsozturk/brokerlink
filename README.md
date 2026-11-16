@@ -52,7 +52,9 @@ The extension popup has four tabs: portfolio (positions, cost, last price, profi
 
 ## Orders
 
-On by default, with a switch in the extension popup ("Emirler açık") to turn them off. An order from an AI is only **queued**: nothing is sent until **you click Approve in the popup**. The per-order and daily limits you set in the popup (defaults 2,500 TL and 10,000 TL) are checked first. An AI agent cannot approve and cannot flip the switches: they live in the browser.
+The popup is in Turkish (the broker's market): *Portföy* = portfolio, *Emirler* = orders, *Geçmiş* = history, *Yenilikler* = what's new, *Onayla / Reddet* = approve / reject, *Emirler açık* = orders enabled, *Onaysız gönderim* = send without approval.
+
+On by default, with a switch in the extension popup ("Emirler açık") to turn them off. An order from an AI is only **queued**: nothing is sent until **you click Onayla (approve) in the popup**. The per-order and daily limits you set in the popup (defaults 2,500 TL and 10,000 TL) are checked first. An AI agent cannot approve and cannot flip the switches: they live in the browser.
 
 ### Auto-send ("Onaysız gönderim")
 
@@ -72,7 +74,7 @@ Order tools are experimental: the request shapes come from real MobilG traffic, 
 2. **Find the instrument.** `read("stock_list", {"type": "dashboard", "shortSell": "0"})` → take `sid` (the numeric `symbolId`) and the code with its suffix, e.g. `GARAN.E`.
 3. **Look at the price.** `read("price_info", {"symbolId": "<sid>", "symbol": "GARAN", "market": "Hisse", "buyCell": "A", "detail": "1"})` gives bid, ask, floor and ceiling; `read("depth", {"symbolId": "<sid>"})` gives the order book.
 4. **Queue the order.** `place_order(symbolId="<sid>", stock="GARAN.E", side="buy", quantity=1, price=134.20)`. Optional: `type` = `limit` (default) or `market`, `tif` = `day` (default) or `ioc`. The reply is `{"state": "awaiting_user_approval", "id": "…", "preview": "BUY GARAN.E 1 @ 134.2 TRY …"}`. Nothing has been sent yet.
-5. **Approve in the browser.** A notification appears; open the popup, read the preview and click **Approve** (or **Reject**).
+5. **Approve in the browser.** A notification appears; open the popup, read the preview and click **Onayla** (approve) or **Reddet** (reject) in the **Emirler** tab.
 6. **Read the result.** `order_result(id)` returns MobilG's answer, e.g. `"Talebiniz İletilmiştir"` with the order number, or `rejected_by_user`.
 7. **Follow it.** `read("order_tracking")` lists today's orders with their ids and status.
 
@@ -96,7 +98,7 @@ Example prompt for any AI client: *"With brokerlink, find the symbolId of GARAN,
 
 ```bash
 git clone https://github.com/nsozturk/brokerlink.git && cd brokerlink
-pip install -r requirements.txt
+pip install -r requirements.txt   # Python 3.10+
 python3 server/brokerlink.py serve
 ```
 
@@ -179,7 +181,7 @@ Linux: run `python3 server/brokerlink.py serve` from a systemd user unit with `R
 No. The extension reads the session inside the MobilG tab at the moment of each call.
 
 ### Can an AI place trades with this?
-An agent can only queue an order; a person must click Approve in the popup. The exception is auto-send, which you switch on yourself.
+An agent can only queue an order; a person must click Onayla (approve) in the popup. The exception is auto-send, which you switch on yourself.
 
 ### Can it withdraw or transfer money?
 No. Those endpoints are on a deny list in both the daemon and the extension.

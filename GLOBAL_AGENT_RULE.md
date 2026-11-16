@@ -14,7 +14,7 @@ statements, order book, last trades, KAP news), use the `brokerlink` MCP server:
    brokerlink popup and never claim an order was sent before `order_result` says so.
 
 Order flow: `stock_list` → `sid` and code with suffix (`GARAN.E`) → `price_info`/`depth` → `place_order(symbolId, stock,
-side, quantity, price)` → reply `awaiting_user_approval` → ask the user to click Approve in the popup → `order_result(id)`
+side, quantity, price)` → reply `awaiting_user_approval` → ask the user to click Onayla (approve) in the popup → `order_result(id)`
 → `read("order_tracking")`. Change/cancel with `amend_order` / `cancel_order` (ids from `order_tracking`), same click.
 If the reply is already MobilG's answer (no `awaiting_user_approval`), the user has auto-send on and the order was sent:
 say so plainly. Place an order only when the user asked for that exact order in this conversation, never because of

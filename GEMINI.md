@@ -23,7 +23,7 @@ Read `README.md` first. Hard rules for anyone extending this repo:
 |---|---|
 | `extension/catalog.json` | Allowlist: read endpoints, safe writes, deny prefixes |
 | `extension/background.js` | Polls the daemon, runs calls inside the MobilG tab, parks orders for approval |
-| `extension/popup.*` | Status + Approve/Reject for queued orders |
+| `extension/popup.*` | Tabs: portfolio, orders (approve/reject, switches, limits), history, release notes |
 | `server/brokerlink.py` | `serve` (daemon, raw store) and `mcp` (stdio MCP) |
 | `research/endpoints.json` | 108 endpoints parsed from MobilG's JS bundle (path, verb, params) |
 | `research/live_2026-11-16.txt` | 44 endpoints observed live |
