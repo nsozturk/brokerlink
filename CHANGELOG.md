@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.2.5
+- YOLO mode: optional, session-only switch that sends small limit orders without the approval click.
+
 ## 0.2.4
 - Fix: three read endpoints (VIOP orders, public offering requests, fund list) were blocked by over-broad deny prefixes.
 - Guard tests, CI, SECURITY.md, CONTRIBUTING.md, troubleshooting and privacy docs.

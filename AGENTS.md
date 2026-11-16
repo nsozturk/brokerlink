@@ -5,7 +5,9 @@ Read `README.md` first. Hard rules for anyone extending this repo:
 1. **Never add money-out endpoints** (EFT, `Transfer/send*`, `ForeignCurrency/set*|send*`, collateral moves),
    login/password/settings, or `aiAuthorization/*`. They are on `denied_prefixes` in `extension/catalog.json`;
    do not remove entries from that list.
-2. **Orders stay behind a human click.** Any new order type (chain, conditional/synthetic, VIOP, fund, IPO,
+2. **Orders stay behind a human click, except in YOLO mode,** which only the user can switch on in the popup
+   (session-only, 4 h, limit orders within fixed caps; see `yoloAllows` in `extension/background.js`). Never widen
+   YOLO: no market orders, no higher caps, no persistence, no way to switch it from the daemon or a tool. Any new order type (chain, conditional/synthetic, VIOP, fund, IPO,
    T+0) must go through `kind: "order"` jobs, which the extension parks in the popup until the user clicks
    Approve. Never add a code path that sends an order from the queue directly. Keep the TL caps. The on/off
    switch is stored and enforced in the extension; never let the daemon or an MCP tool change it.

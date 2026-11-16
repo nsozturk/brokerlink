@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-0.2.4-d97757" alt="version 0.2.4">
+  <img src="https://img.shields.io/badge/version-0.2.5-d97757" alt="version 0.2.5">
   <img src="https://img.shields.io/badge/python-3.10%2B-3776ab" alt="Python 3.10+">
   <img src="https://img.shields.io/badge/license-MIT-green" alt="MIT">
   <img src="https://img.shields.io/badge/API%20keys-none-success" alt="no API keys">
@@ -52,7 +52,13 @@ The extension popup also shows your positions, cost, last price and profit/loss.
 
 ## Orders
 
-On by default, with a switch in the extension popup ("Emirler açık") to turn them off. An order from an AI is only **queued**: nothing is sent until **you click Approve in the popup**. `max_order_try` (default 2,500 TL) and `max_daily_try` (default 10,000 TL) are checked first and can be changed in `config.json`. An AI agent cannot approve and cannot flip the switch: both live in the browser.
+On by default, with a switch in the extension popup ("Emirler açık") to turn them off. An order from an AI is only **queued**: nothing is sent until **you click Approve in the popup**. `max_order_try` (default 2,500 TL) and `max_daily_try` (default 10,000 TL) are checked first and can be changed in `config.json`. An AI agent cannot approve and cannot flip the switches: they live in the browser.
+
+### YOLO mode
+
+A second popup switch, **off by default**. While it is on, limit orders up to 2,500 TL (10,000 TL per day), amendments within the same cap and cancels are sent **without asking**; the reply to `place_order` is then MobilG's answer. Market orders and anything above the caps still wait for your click. It turns itself off after 4 hours and when the browser restarts, asks for confirmation when switched on, and shows a notification for every order it sends. Only the extension can switch it; no tool or daemon call can.
+
+Be aware of what this means: an AI agent that misreads you, or that is steered by text it reads elsewhere (a news item, a web page), can trade real money within those caps.
 
 ## Placing an order, step by step
 
@@ -169,7 +175,7 @@ Linux: run `python3 server/brokerlink.py serve` from a systemd user unit with `R
 No. The extension reads the session inside the MobilG tab at the moment of each call.
 
 ### Can an AI place trades with this?
-An agent can only queue an order; a person must click Approve in the popup.
+An agent can only queue an order; a person must click Approve in the popup. The exception is YOLO mode, which you switch on yourself.
 
 ### Can it withdraw or transfer money?
 No. Those endpoints are on a deny list in both the daemon and the extension.

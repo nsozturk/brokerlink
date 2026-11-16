@@ -35,9 +35,10 @@
 </section>
 <section id="sec-orders">
   <label style="float:right;color:var(--muted);cursor:pointer"><input type="checkbox" id="orders-on"> Emirler açık</label>
+  <label style="float:right;color:var(--bad);cursor:pointer;margin-right:10px"><input type="checkbox" id="yolo-on"> YOLO <span id="yolo-left"></span></label>
   <b>Orders waiting for you</b>
   <div id="pending"><small>None.</small></div>
-  <small>Orders are sent only when you click Approve here. Agents cannot approve.</small>
+  <small id="orders-hint">Orders are sent only when you click Approve here. Agents cannot approve.</small>
 </section>
 <section>
   <b>Yenilikler</b> <small id="ver"></small>

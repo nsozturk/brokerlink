@@ -83,6 +83,25 @@ sw.onchange = async () => {
   chrome.runtime.sendMessage({ type: "settings" });
 };
 
+const yolo = document.getElementById("yolo-on");
+async function renderYolo() {
+  const { yoloUntil = 0 } = await chrome.storage.session.get("yoloUntil");
+  const on = Date.now() < yoloUntil;
+  yolo.checked = on;
+  document.getElementById("yolo-left").textContent = on ? `(${Math.ceil((yoloUntil - Date.now()) / 60000)} dk)` : "";
+  document.getElementById("orders-hint").textContent = on
+    ? "YOLO AÇIK: 2.500 TL altındaki limit emirler onay sorulmadan gönderilir (günlük 10.000 TL). Piyasa emirleri ve üstü yine onay ister."
+    : "Orders are sent only when you click Approve here. Agents cannot approve.";
+  document.getElementById("orders-hint").style.color = on ? "var(--bad)" : "";
+}
+yolo.onchange = async () => {
+  if (yolo.checked && !confirm("YOLO modu: yapay zeka ajanları 2.500 TL altındaki limit emirleri SANA SORMADAN gerçek hesabına gönderebilir (günlük 10.000 TL). 4 saat sonra ya da tarayıcı kapanınca kendiliğinden kapanır. Açılsın mı?")) yolo.checked = false;
+  await chrome.storage.session.set({ yoloUntil: yolo.checked ? Date.now() + 4 * 3600 * 1000 : 0 });
+  chrome.runtime.sendMessage({ type: "settings" });
+  renderYolo();
+};
+renderYolo();
+
 render();
 renderUpdate();
 renderPortfolio();

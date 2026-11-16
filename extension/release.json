@@ -1,7 +1,10 @@
 {
-  "version": "0.2.4",
+  "version": "0.2.5",
   "min_supported": "0.2.2",
   "notes": {
+    "0.2.5": [
+      "YOLO modu (varsayılan kapalı): 2.500 TL altındaki limit emirler onay sorulmadan gönderilir; 4 saatte ya da tarayıcı kapanınca kapanır"
+    ],
     "0.2.4": [
       "Düzeltme: VİOP emir listesi, halka arz talepleri ve fon listesi okuma uçları yanlışlıkla engelleniyordu"
     ],

@@ -9,6 +9,7 @@ brokerlink touches a brokerage session, so please report problems privately: ope
 - The daemon listens on `127.0.0.1` only and refuses requests that carry a web page `Origin`.
 - One allowlist (`extension/catalog.json`) is enforced twice: in the daemon and in the extension.
 - Money-out, transfer, login, password and settings endpoints are on a deny list and covered by `tests/test_daemon.py`.
+- YOLO mode (off by default, user-switched, session-only, capped, limit orders only) is the single exception to the next line.
 - Orders are only queued by tools. They are sent when a person clicks Approve in the popup; the on/off switch is stored and enforced in the extension.
 - Stored raw responses have session fields redacted.
 

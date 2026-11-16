@@ -24,7 +24,7 @@ JOB_TTL, WAIT_S = 150, 60
 # mirrors it to answer early). Every order still waits for a human click in the popup, and the caps
 # below (override in config.json) are checked before an order is ever queued.
 DEFAULT_CONFIG = {"max_order_try": 2500, "max_daily_try": 10000}
-_state = {"orders_enabled": True}
+_state = {"orders_enabled": True, "yolo": False}
 SECRET_KEYS = {"clientId", "ClientId", "otpToken", "dataToken", "hashkey", "hashKey", "userName", "email", "l"}
 
 
@@ -210,7 +210,7 @@ class Handler(BaseHTTPRequestHandler):
         if self._forbidden():
             return self._send(403)
         if self.path == "/health":
-            return self._send(200, {"ok": True, "pending": len(jobs), "orders_enabled": _state["orders_enabled"]})
+            return self._send(200, {"ok": True, "pending": len(jobs), **_state})
         if self.path == "/release":                        # on-disk release + what origin/main has (checked every 3 h)
             rel = json.load(open(os.path.join(ROOT, "extension", "release.json")))
             r = remote_release()
@@ -241,7 +241,8 @@ class Handler(BaseHTTPRequestHandler):
         if self._forbidden():
             return self._send(403)
         if self.path == "/settings":                       # mirror of the popup switch, sent by the extension
-            _state["orders_enabled"] = bool(self._body().get("orders_enabled"))
+            body = self._body()
+            _state.update(orders_enabled=bool(body.get("orders_enabled")), yolo=bool(body.get("yolo")))
             return self._send(200, _state)
         if self.path == "/update":                         # fast-forward to origin/main, then restart (launchd KeepAlive)
             try:
@@ -323,7 +324,8 @@ def mcp():
         return {"read": {k: {"params": v["params"], "doc": v["doc"]} for k, v in CATALOG["endpoints"].items()},
                 "write": {k: {"params": v.get("params", []), "body": v.get("body", []), "doc": v["doc"]}
                           for k, v in CATALOG["writes"].items()},
-                "orders_enabled": json.loads(urllib.request.urlopen(f"http://{HOST}:{PORT}/health", timeout=5).read())["orders_enabled"]}
+                **{k: v for k, v in json.loads(urllib.request.urlopen(f"http://{HOST}:{PORT}/health", timeout=5).read()).items()
+                   if k in ("orders_enabled", "yolo")}}
 
     @app.tool()
     def read(name: str, params: dict | None = None) -> dict:
@@ -344,7 +346,8 @@ def mcp():
     @app.tool()
     def place_order(symbolId: str, stock: str, side: str, quantity: int, price: float,
                     type: str = "limit", tif: str = "day") -> dict:
-        """Queue an equity order for HUMAN approval. The user can switch orders off in the popup.
+        """Queue an equity order for HUMAN approval (if the user switched YOLO mode on in the popup, limit
+        orders within the caps are sent at once and the reply is MobilG's answer). Orders can be switched off.
         Capped by max_order_try / max_daily_try. Nothing is sent until the user clicks Approve in the
         brokerlink popup. side buy|sell, type limit|market, tif day|ioc, stock like 'NTGAZ.E'."""
         return call({"kind": "order", "order": dict(symbolId=symbolId, stock=stock, side=side,

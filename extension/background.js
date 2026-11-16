@@ -61,7 +61,8 @@ async function ordersEnabled() {
   return ordersEnabled;
 }
 async function pushSettings() {
-  await post("/settings", { orders_enabled: await ordersEnabled() }).catch(() => {});
+  const { yoloUntil = 0 } = await chrome.storage.session.get("yoloUntil");
+  await post("/settings", { orders_enabled: await ordersEnabled(), yolo: Date.now() < yoloUntil }).catch(() => {});
 }
 
 // Update check: the daemon serves release.json from disk; we compare it with the loaded build.
@@ -89,8 +90,14 @@ async function runJob(job) {
   const spec = await resolve(job);
   if (spec.order && !(await ordersEnabled()))
     return { status: 403, body: '{"error":"orders are switched off in the brokerlink popup"}' };
+  if (spec.order && await yoloAllows(job)) {
+    const result = await sendOrder(job);
+    chrome.notifications.create(job.id, { type: "basic", iconUrl: "icons/128.png",
+      title: "brokerlink YOLO: order sent without approval", message: job.preview || "" });
+    return result;
+  }
   if (spec.order) {
-    // Orders never run from the queue: they wait for a click in the popup (see approveOrder).
+    // Without YOLO, orders never run from the queue: they wait for a click in the popup (see approveOrder).
     const { pending = [] } = await chrome.storage.session.get("pending");
     pending.push(job);
     await chrome.storage.session.set({ pending });
@@ -114,7 +121,40 @@ async function post(path, payload) {
   await fetch(DAEMON + path, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) });
 }
 
-// Called from the popup after the user clicks Approve. The only path that sends an order.
+// YOLO mode (popup switch, off by default): limit orders within the caps go out without a click.
+// It lives in storage.session, so it ends when the browser restarts, and it expires after YOLO_HOURS.
+// Market orders and anything above the caps still wait for a click. Checked here, not in the daemon.
+const YOLO_HOURS = 4, YOLO_MAX_ORDER_TRY = 2500, YOLO_MAX_DAILY_TRY = 10000;
+async function yoloAllows(job) {
+  const { yoloUntil = 0, yoloSpent = { day: "", sum: 0 } } = await chrome.storage.session.get(["yoloUntil", "yoloSpent"]);
+  if (Date.now() > yoloUntil) return false;
+  const b = job.body || {};
+  let amount = 0;
+  if (job.name === "order") {
+    if (b.orderType !== "LMT") return false;
+    amount = Number(b.quantity) * Number(b.price);
+  } else if (job.name === "order_amend") amount = Number(b.newAmount) * Number(b.newPrice);
+  else if (job.name !== "order_cancel") return false;
+  if (!(amount >= 0) || amount > YOLO_MAX_ORDER_TRY) return false;
+  const day = new Date().toDateString();
+  const sum = (yoloSpent.day === day ? yoloSpent.sum : 0) + amount;
+  if (sum > YOLO_MAX_DAILY_TRY) return false;
+  await chrome.storage.session.set({ yoloSpent: { day, sum } });
+  return true;
+}
+
+async function sendOrder(job) {
+  const tab = await mobilgTab();
+  if (!tab) return { status: 409, body: '{"error":"MobilG tab not open"}' };
+  const [res] = await chrome.scripting.executeScript({
+    target: { tabId: tab.id }, func: inTab,
+    args: [{ path: job.path, method: job.method || "POST", auth: true, app_number: true,
+             app_number_in_body: true, auth_in_body: !!job.auth_in_body, extra: {}, params: {}, body: job.body }],
+  });
+  return res.result;
+}
+
+// Called from the popup after the user clicks Approve.
 async function approveOrder(id, approve) {
   const { pending = [] } = await chrome.storage.session.get("pending");
   const job = pending.find(j => j.id === id);
@@ -122,18 +162,7 @@ async function approveOrder(id, approve) {
   if (!job) return;
   let result;
   if (!approve) result = { status: 499, body: '{"state":"rejected_by_user"}' };
-  else {
-    const tab = await mobilgTab();
-    if (!tab) result = { status: 409, body: '{"error":"MobilG tab not open"}' };
-    else {
-      const [res] = await chrome.scripting.executeScript({
-        target: { tabId: tab.id }, func: inTab,
-        args: [{ path: job.path, method: job.method || "POST", auth: true, app_number: true,
-                 app_number_in_body: true, auth_in_body: !!job.auth_in_body, extra: {}, params: {}, body: job.body }],
-      });
-      result = res.result;
-    }
-  }
+  else result = await sendOrder(job);
   await post(`/jobs/${id}/result`, result);
 }
 
