@@ -54,6 +54,34 @@ The extension popup also shows your positions, cost, last price and profit/loss.
 
 On by default, with a switch in the extension popup ("Emirler açık") to turn them off. An order from an AI is only **queued**: nothing is sent until **you click Approve in the popup**. `max_order_try` (default 2,500 TL) and `max_daily_try` (default 10,000 TL) are checked first and can be changed in `config.json`. An AI agent cannot approve and cannot flip the switch: both live in the browser.
 
+## Placing an order, step by step
+
+Order tools are experimental: the request shapes come from real MobilG traffic, but test with one lot and a far-away limit price first.
+
+1. **Check the switch.** Open the extension popup; "Emirler açık" must be ticked.
+2. **Find the instrument.** `read("stock_list", {"type": "dashboard", "shortSell": "0"})` → take `sid` (the numeric `symbolId`) and the code with its suffix, e.g. `GARAN.E`.
+3. **Look at the price.** `read("price_info", {"symbolId": "<sid>", "symbol": "GARAN", "market": "Hisse", "buyCell": "A", "detail": "1"})` gives bid, ask, floor and ceiling; `read("depth", {"symbolId": "<sid>"})` gives the order book.
+4. **Queue the order.** `place_order(symbolId="<sid>", stock="GARAN.E", side="buy", quantity=1, price=134.20)`. Optional: `type` = `limit` (default) or `market`, `tif` = `day` (default) or `ioc`. The reply is `{"state": "awaiting_user_approval", "id": "…", "preview": "BUY GARAN.E 1 @ 134.2 TRY …"}`. Nothing has been sent yet.
+5. **Approve in the browser.** A notification appears; open the popup, read the preview and click **Approve** (or **Reject**).
+6. **Read the result.** `order_result(id)` returns MobilG's answer, e.g. `"Talebiniz İletilmiştir"` with the order number, or `rejected_by_user`.
+7. **Follow it.** `read("order_tracking")` lists today's orders with their ids and status.
+
+To change or cancel a working order, take its id from `order_tracking`:
+
+- `amend_order(orderId, oldPrice, oldAmount, newPrice, newAmount)`
+- `cancel_order(orderId)`
+
+Both are queued and need the same click in the popup.
+
+| Refusal | Meaning |
+|---|---|
+| `orders are disabled (switch them on in the brokerlink popup)` | The popup switch is off |
+| `order … TL exceeds max_order_try` / `daily cap … reached` | Above the caps in `config.json` (defaults 2,500 TL per order, 10,000 TL per day) |
+| `409 … Open MobilG and log in` | No logged-in MobilG tab |
+| `426 … update required` | Popup → Update |
+
+Example prompt for any AI client: *"With brokerlink, find the symbolId of GARAN, show me bid/ask, then queue a limit buy of 1 lot at 134.20 and tell me when it is waiting for my approval."*
+
 ## Quick start
 
 ```bash
